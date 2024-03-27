@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>收益率和买入合约的条件</title>
+    <link href="css/style.css" rel="stylesheet">
+
+</head>
+<body>
+<div class="content">
+    <div class="text">
+        <h3>公开云代码网址： </h3><br>
+        <h3>https://github.com/newusually/heyiran</h3><br>
+        <h3>我们是守护者，也是一群时刻对抗危险和疯狂的可怜虫！！！"</h3><br>
+        <h3>此网站由不属于这个时代的愚者编写创造！！！</h3><br>
+        <h3>***************************************</h3><br>
+        <h3>***************************************</h3><br>
+        <h3>***************************************</h3><br>
+    </div>
+    <div class="image">
+        <img alt="Yuzhe" src="img/yuzhe.jpeg">
+    </div>
+</div>
+<h1>实时收益率</h1><br>
+<h1>总计亏损金额: {{.TotalOnlyImr}}</h1><br>
+<h1>保证金总和: {{.TotalImr}}</h1><br>
+<h1 style="text-align: center; white-space: pre-wrap;">{{.Cashbal}}</h1><br>
+<br>
+<h1>实时亏损盈利记录</h1><br>
+<div class="scrollable-table">
+    <table class="colorful">
+        <tr>
+            <th>合约名称</th>
+            <th>未实现收益率</th>
+            <th>现价</th>
+            <th>开仓均价</th>
+            <th>保证金</th>
+            <th>杠杆倍数</th>
+            <th>总计亏损金额</th>
+        </tr>
+        {{range .UplRatioData}}
+        <tr>
+            <td>{{.Symbol}}</td>
+            <td>{{.UplRatio}}</td>
+            <td>{{.NotionalUsd}}</td>
+            <td>{{.AvgPx}}</td>
+            <td>{{.Imr}}</td>
+            <td>{{.Pos}}</td>
+            <td>{{.OnlyImr}}</td>
+        </tr>
+        {{end}}
+    </table>
+</div>
+<br>
+<h1>买入合约的条件</h1><br>
+{{if .Data}}
+<div class="scrollable-table">
+    <table class="colorful">
+        <tr>
+            {{range .Data.Columns}}
+            <th>{{.}}</th>
+            {{end}}
+        </tr>
+        {{range .Data.Rows}}
+        <tr>
+            {{range $index, $value := .}}
+            <td class="-{{$index}}">{{$value}}</td>
+            {{end}}
+        </tr>
+        {{end}}
+    </table>
+</div>
+<div class="pagination">
+    <div class="page-item"><a href="/?page=1">首页</a></div>
+    {{if gt .Page 1}}
+    <div class="page-item"><a href="/?page={{sub .Page 1}}">&laquo; 上一页</a></div>
+    {{end}}
+    {{range .Pages}}
+    <div class="page-item {{if eq . $.Page}}active{{end}}"><a href="/?page={{.}}">{{.}}</a></div>
+    {{end}}
+    {{if lt .Page .TotalPages}}
+    <div class="page-item"><a href="/?page={{add .Page 1}}">下一页 &raquo;</a></div>
+    {{end}}
+    <div class="page-item"><a href="/?page={{.TotalPages}}">最后一页</a></div>
+</div>
+{{else}}
+<p>No data available.</p>
+{{end}}
+
+</body>
+</html>
