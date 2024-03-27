@@ -186,8 +186,6 @@ class MVC:
                             avgPx) + ",保证金--->>>" + "{:.5f}".format(imr) + ",杠杆倍数--->>>" + str(
                             lever) + ",总计亏损金额--->>>" + "{:.5f}".format(
                             imr * uplRatio))
-                
-                print(log)
 
                 # 现在路径存在，打开文件并在尾部追加内容，指定编码为UTF-8
                 with open(file_path, 'a', encoding='utf-8') as file:
@@ -213,11 +211,11 @@ class MVC:
                         return False
 
                     if issus and 'close' in dw.columns and not dw['close'].empty and pd.notnull(dw["close"]).all():
-                        
+
                         if 1.002 < dw["close"].values[-1] / dw["open"].values[-1] < 1.025 :
                             if -5 < uplRatio < -1.5 :
                                 MVC.orderbuy(api_key, secret_key, passphrase, flag, symbol, "imr")
-                            elif uplRatio > -1.5 :
+                            elif uplRatio > -1 :
                                 MVC.orderbuy(api_key, secret_key, passphrase, flag, symbol, "low")
 
                 if uplRatio > 0.5 or uplRatio < -10:
@@ -249,7 +247,7 @@ class MVC:
         result = accountAPI.get_account('USDT')['data'][0]["details"][0]
         swap = accountAPI.get_position_risk('SWAP')
         posData = swap['data'][0]['posData']
-        print(result)
+        #print(result)
         log = ("\n合约订单数量----->>>" + str(
             len(posData)) + "个,  " + "币种折算权益----->>>" + "{:.2f}".format(
             float(result["disEq"])) + "＄,  " + "\n实际未结算盈亏总额：--->>>" + "{:.2f}".format(

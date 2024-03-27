@@ -25,9 +25,9 @@ func main() {
 	crontab.AddFunc(specuplRatio, mvc.GetuplRatio)
 
 	//定时任务3m
-	//spec3 := "30 2,5,8,11,14,17,20,23,26,29,32,35,38,41,44,47,50,53,56,59 * * * ?" //cron表达式，每4小时一次
+	spec3 := "30 2,5,8,11,14,17,20,23,26,29,32,35,38,41,44,47,50,53,56,59 * * * ?" //cron表达式，每4小时一次
 	// 添加定时任务,
-	//crontab.AddFunc(spec3, run3)
+	crontab.AddFunc(spec3, runtime.Run3)
 
 	//定时任务5m
 	spec5 := "30 4,9,14,19,24,29,34,39,44,49,54,59 * * * ?" //cron表达式，每4小时一次
