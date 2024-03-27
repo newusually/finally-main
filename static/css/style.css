@@ -1,0 +1,148 @@
+body {
+    text-align: center;
+    font-family: Arial, sans-serif;
+    background-color: #FFFFCC; /* Light yellow */
+}
+
+.content {
+    display: flex;
+    justify-content: space-between;
+}
+
+.text {
+    text-align: center;
+}
+
+.image {
+    width: 50%; /* Adjust the width as needed */
+    height: auto; /* This will maintain the aspect ratio */
+    float: right; /* This will align the image to the right */
+}
+
+
+
+h1{
+    display: inline; /* Make the h1 element inline */
+    background-color: deepskyblue;
+    color: white;
+    transition: background-color 0.3s ease;
+    white-space: normal; /* Allow line breaks */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Shadow for 3D effect */
+    text-shadow: 1px 1px 2px black; /* Text shadow for 3D effect */
+}
+
+h1:active {
+    background-color: deepskyblue;
+}
+
+h1:hover {
+    background-color: #ff6699 !important; /* Change color on hover */
+    cursor: pointer;
+}
+
+
+table {
+    width: 90%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+table thead th {
+    position: sticky;
+    top: 0;
+    background-color: #4CAF50; /* Same color as the original background */
+}
+
+
+th, td {
+    border-radius: 15px; /* Round corners */
+    padding: 5px 10px; /* Padding around text */
+    color: #333; /* Text color */
+    background-color: white; /* Cell color */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Shadow for 3D effect */
+}
+
+
+th {
+    background-color: #4CAF50;
+    color: white;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+tr:hover td {
+    background-color: #ddd;
+    cursor: pointer;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.page-item {
+    margin: 0 5px;
+    cursor: pointer;
+}
+
+.page-item a {
+    text-decoration: none;
+    color: #333;
+    /* Sky blue background */
+    transition: background 0.5s; /* Transition effect */
+    border-radius: 15px; /* Round corners */
+    padding: 5px 10px; /* Padding around text */
+    color: white !important; /* Text color */
+    background-color: #4CAF50; /* Button color */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Shadow for 3D effect */
+}
+
+.page-item a:hover {
+    background: deepskyblue; /* Change color on hover */
+}
+
+.active a {
+    font-weight: bold;
+    color: #4CAF50;
+}
+
+/* 为表格添加滚动条 */
+.scrollable-table {
+    overflow: auto;
+    max-height: 400px; /* 可以根据需要调整最大高度 */
+}
+
+.scrollable-table th {
+    position: sticky;
+    top: 0;
+    background-color: #4CAF50;
+    z-index: 1;
+}
+
+
+/* 色彩斑斓的表格 */
+table.colorful td {
+    transition: background-color 0.2s ease-in-out;
+}
+
+table.colorful tr:nth-child(odd) td:nth-child(odd),
+table.colorful tr:nth-child(even) td:nth-child(even) {
+    background-color: #ffcc00;
+}
+
+table.colorful tr:nth-child(odd) td:nth-child(even),
+table.colorful tr:nth-child(even) td:nth-child(odd) {
+    background-color: #33ccff;
+}
+
+table.colorful tr:hover td {
+    background-color: #ff6699 !important;
+}
+
+
+
+
