@@ -130,7 +130,7 @@ func Getprice(symbol string, minute string) {
 	opens := gjson.Get(src, "data.#.1").Array()
 	highs := gjson.Get(src, "data.#.2").Array()
 
-	if len(closes) > 500 && closes[10].Float() > 0.0001 {
+	if len(closes) > 500 && closes[10].Float() > 3 {
 
 		day := make([]string, len(dates))
 		c := make([]float64, len(closes))

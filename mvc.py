@@ -322,7 +322,7 @@ class MVC:
             print("亏损金额+最高冻结保证金金额动态 小于0 不继续")
             return False
 
-        elif len(posData) < 50 or minute == "low" or minute == "imr":
+        elif len(posData) < 10 or minute == "low" or minute == "imr":
 
             sr, dollar, dollar_eth = User.get_user_sr()
             sr1 = str(sr)
