@@ -160,11 +160,12 @@ func Getprice(symbol string, minute string) {
 		x := len(c)
 
 		diff, dea, _ := talib.Macd(c, 12, 26, 60)
+		choose_ma := c[x-1] > talib.Sma(c, 5)[x-1]
 
 		macd1 := 2 * (diff[x-1] - dea[x-1])
 		macd2 := 2 * (diff[x-2] - dea[x-2])
 
-		if c[x-1]/o[x-1] > 1.004 && c[x-1]/o[x-1] < 1.015 &&
+		if c[x-1]/o[x-1] > 1.0035 && c[x-1]/o[x-1] < 1.015 && choose_ma &&
 			h[x-1]/c[x-1] < 1.0025 && h[x-2]/c[x-2] < 1.0025 && macd1 < 0 && macd2 < 0 {
 			y := "\n----time--->>" + time.Now().Format("2006-1-2 15:04:02") +
 				",symbol----->>>" + symbol +

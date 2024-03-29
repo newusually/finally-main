@@ -149,7 +149,7 @@ class MVC:
             file.write("")
 
         if len(datas) > 0:
-            #print(datas)
+            # print(datas)
             # 使用循环遍历 posData 列表中的每个元素
             for item in datas:
                 time.sleep(1)
@@ -159,8 +159,8 @@ class MVC:
 
                 # 查看持仓信息  Get Positions
                 result = accountAPI.get_positions('SWAP', symbol)
-                #print(result)
-                #print(result['data'][0])
+                # print(result)
+                # print(result['data'][0])
 
                 # 未实现收益率
                 uplRatio = float(result['data'][0]['uplRatio'])
@@ -212,10 +212,10 @@ class MVC:
 
                     if issus and 'close' in dw.columns and not dw['close'].empty and pd.notnull(dw["close"]).all():
 
-                        if 1.002 < dw["close"].values[-1] / dw["open"].values[-1] < 1.025 :
-                            if -5 < uplRatio < -1.5 :
+                        if 1.002 < dw["close"].values[-1] / dw["open"].values[-1] < 1.025:
+                            if -5 < uplRatio < -1.5:
                                 MVC.orderbuy(api_key, secret_key, passphrase, flag, symbol, "imr")
-                            elif uplRatio > -1 :
+                            elif uplRatio > -1:
                                 MVC.orderbuy(api_key, secret_key, passphrase, flag, symbol, "low")
 
                 if uplRatio > 0.5 or uplRatio < -10:
@@ -225,7 +225,7 @@ class MVC:
                     # 市价仓位全平  Close Positions
                     result = tradeAPI.close_positions(symbol, 'cross', 'long', '')
 
-    #获取实时账户资金信息 每分钟查询一次
+    # 获取实时账户资金信息 每分钟查询一次
     def getcashbal(api_key, secret_key, passphrase, flag):
         # 定义要存放文件的路径../datas/uplRatio/log/cashbal.txt
         folder_path = '../datas/uplRatio/log'
@@ -247,7 +247,7 @@ class MVC:
         result = accountAPI.get_account('USDT')['data'][0]["details"][0]
         swap = accountAPI.get_position_risk('SWAP')
         posData = swap['data'][0]['posData']
-        #print(result)
+        # print(result)
         log = ("\n合约订单数量----->>>" + str(
             len(posData)) + "个,  " + "币种折算权益----->>>" + "{:.2f}".format(
             float(result["disEq"])) + "＄,  " + "\n实际未结算盈亏总额：--->>>" + "{:.2f}".format(
@@ -262,9 +262,8 @@ class MVC:
             # 将日志信息写入文件
             file.write(log)
 
-    #资金历史记录 每分钟记录一次
+    # 资金历史记录 每分钟记录一次
     def getcashhistory(api_key, secret_key, passphrase, flag):
-
 
         # account api
         accountAPI = Account.AccountAPI(api_key, secret_key, passphrase, False, flag)
@@ -280,32 +279,32 @@ class MVC:
         # 美金层面币种折算权益
         with open("../datas/uplRatio/log/disEq_history.txt", 'a', encoding='utf-8') as file:
             # 将日志信息写入文件
-            file.write("\n"+today+","+ "{:.2f}".format(float(result["disEq"])))
+            file.write("\n" + today + "," + "{:.2f}".format(float(result["disEq"])))
 
-        #实际未结算盈亏总额
+        # 实际未结算盈亏总额
         with open("../datas/uplRatio/log/upl_history.txt", 'a', encoding='utf-8') as file:
             # 将日志信息写入文件
-            file.write("\n"+today+","+ "{:.2f}".format(float(result["upl"])))
+            file.write("\n" + today + "," + "{:.2f}".format(float(result["upl"])))
 
-        #USDT币种余额
+        # USDT币种余额
         with open("../datas/uplRatio/log/cashBal_history.txt", 'a', encoding='utf-8') as file:
             # 将日志信息写入文件
-            file.write("\n"+today+","+ "{:.2f}".format(float(result["cashBal"])))
+            file.write("\n" + today + "," + "{:.2f}".format(float(result["cashBal"])))
 
-        #合约订单数量
+        # 合约订单数量
         with open("../datas/uplRatio/log/posdatacount_history.txt", 'a', encoding='utf-8') as file:
             # 将日志信息写入文件
-            file.write("\n"+today+","+ str(len(posData)))
+            file.write("\n" + today + "," + str(len(posData)))
 
-        #USDT保证金金额
+        # USDT保证金金额
         with open("../datas/uplRatio/log/frozenBal_history.txt", 'a', encoding='utf-8') as file:
             # 将日志信息写入文件
-            file.write("\n"+today+","+ "{:.2f}".format(float(result["frozenBal"])))
+            file.write("\n" + today + "," + "{:.2f}".format(float(result["frozenBal"])))
 
-        #USDT保证金率
+        # USDT保证金率
         with open("../datas/uplRatio/log/mgnRatio_history.txt", 'a', encoding='utf-8') as file:
             # 将日志信息写入文件
-            file.write("\n"+today+","+ "{:.2f}".format(float(result["mgnRatio"]) * 100) + "%")
+            file.write("\n" + today + "," + "{:.2f}".format(float(result["mgnRatio"]) * 100) + "%")
 
     def orderbuy(api_key, secret_key, passphrase, flag, symbol, minute):
         # account api
@@ -322,8 +321,8 @@ class MVC:
         if upl + cashBal * 0.8 < 0:
             print("亏损金额+最高冻结保证金金额动态 小于0 不继续")
             return False
-   
-        elif len(posData) < 100 or minute == "low" or minute == "imr":
+
+        elif len(posData) < 50 or minute == "low" or minute == "imr":
 
             sr, dollar, dollar_eth = User.get_user_sr()
             sr1 = str(sr)

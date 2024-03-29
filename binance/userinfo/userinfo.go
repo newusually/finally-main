@@ -27,7 +27,5 @@ func GetUserinfo() (string, string) {
 		return "", ""
 	}
 
-	fmt.Println("API Key:", keys.APIKey)
-	fmt.Println("Secret Key:", keys.SecretKey)
 	return keys.APIKey, keys.SecretKey
 }
