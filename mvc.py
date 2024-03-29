@@ -215,10 +215,10 @@ class MVC:
                         if 1.002 < dw["close"].values[-1] / dw["open"].values[-1] < 1.025:
                             if -5 < uplRatio < -1.5:
                                 MVC.orderbuy(api_key, secret_key, passphrase, flag, symbol, "imr")
-                            elif uplRatio > -1:
+                            else:
                                 MVC.orderbuy(api_key, secret_key, passphrase, flag, symbol, "low")
 
-                if uplRatio > 0.5 or uplRatio < -10:
+                if uplRatio > 0.5 or uplRatio < -5:
                     print("symbol--->>>", symbol, "未实现收益率--->>>", uplRatio)
                     tradeAPI = Trade.TradeAPI(api_key, secret_key, passphrase, False, flag)
 
