@@ -212,13 +212,13 @@ class MVC:
 
                     if issus and 'close' in dw.columns and not dw['close'].empty and pd.notnull(dw["close"]).all():
 
-                        if 1.002 < dw["close"].values[-1] / dw["open"].values[-1] < 1.025:
-                            if -5 < uplRatio < -1.5:
+                        if 1.001 < dw["close"].values[-1] / dw["open"].values[-1] < 1.025:
+                            if -10 < uplRatio < -1.5:
                                 MVC.orderbuy(api_key, secret_key, passphrase, flag, symbol, "imr")
                             else:
                                 MVC.orderbuy(api_key, secret_key, passphrase, flag, symbol, "low")
 
-                if uplRatio > 0.5 or uplRatio < -5:
+                if uplRatio > 0.5 or uplRatio < -10:
                     print("symbol--->>>", symbol, "未实现收益率--->>>", uplRatio)
                     tradeAPI = Trade.TradeAPI(api_key, secret_key, passphrase, False, flag)
 
