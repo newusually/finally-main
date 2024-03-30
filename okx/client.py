@@ -1,5 +1,6 @@
-import requests
 import json
+import requests
+
 from . import consts as c, utils, exceptions
 
 
@@ -55,12 +56,14 @@ class Client(object):
         return self._request(method, request_path, {})
 
     def _request_with_params(self, method, request_path, params):
+        # print("params:", self._request(method, request_path, params))
         return self._request(method, request_path, params)
 
     def _get_timestamp(self):
         url = c.API_URL + c.SERVER_TIMESTAMP_URL
         response = requests.get(url)
         if response.status_code == 200:
+
             return response.json()['ts']
         else:
             return ""

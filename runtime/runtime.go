@@ -77,16 +77,12 @@ func Run(minute string) {
 			fmt.Println("No match found")
 		}
 
-		choose := symbol != "USTC-USDT-SWAP" && symbol != "USDC-USDT-SWAP"
-		/***
-		&&
+		choose := symbol != "USTC-USDT-SWAP" && symbol != "USDC-USDT-SWAP" &&
 			symbol != "BTC-USDT-SWAP" && symbol != "ETH-USDT-SWAP" && symbol != "ETC-USDT-SWAP" &&
 			symbol != "BCH-USDT-SWAP" && symbol != "DOGE-USDT-SWAP" && symbol != "SOL-USDT-SWAP" &&
 			symbol != "XRP-USDT-SWAP" && symbol != "AVAX-USDT-SWAP" && symbol != "BSV-USDT-SWAP" &&
 			symbol != "OP-USDT-SWAP" && symbol != "LTC-USDT-SWAP" && symbol != "ADA-USDT-SWAP" &&
 			symbol != "LINK-USDT-SWAP" && symbol != "TRX-USDT-SWAP" && symbol != "MKR-USDT-SWAP"
-
-		*/
 
 		if choose {
 			mvc.Getprice(symbol, minute)

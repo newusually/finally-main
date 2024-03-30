@@ -9,7 +9,7 @@ import okx.status_api as Status
 import okx.subAccount_api as SubAccount
 
 if __name__ == '__main__':
-    with open('../api.json', 'r', encoding='utf-8') as f:
+    with open('../../datas/api.json', 'r', encoding='utf-8') as f:
         obj = json.loads(f.read())
 
     api_key = obj['api_key']
@@ -24,7 +24,7 @@ if __name__ == '__main__':
     # 批量下单  Place Multiple Orders
     # 批量下单  Place Multiple Orders
 
-    symbol = "SUSHI-USDT-SWAP"
+    # symbol = "SUSHI-USDT-SWAP"
     # sr1 = "1"
     # r = 1.0025
     # result = tradeAPI.place_order(instId=symbol, tdMode='cross', side='buy', posSide='long',
@@ -42,18 +42,19 @@ if __name__ == '__main__':
     # 查看账户持仓风险 GET Position_risk
     # result = accountAPI.get_position_risk('SWAP')
     # 查看账户余额  Get Balance
-    result = accountAPI.get_account('USDT')['data'][0]["details"][0]
-    print(result)
-
-    print("美金层面币种折算权益--->>>", result["disEq"], "USDT币种余额--->>>", result["cashBal"],
-          "美金层面保证金率--->>>", result["mgnRatio"], "可用余额--->>>", result["availBal"],
-          "币种占用金额--->>>", result["frozenBal"], "实际未结算盈亏--->>>", result["upl"])
+    # 获取保证金SUSHI-USDT-SWAP的最大保证金张数 大于此保证金张数的70%才可以买入
+    result = accountAPI.get_adjust_leverage_info('SWAP', 'cross', 50, 'SUSHI-USDT-SWAP')
+    print(result['data'][0])
+    # 最大倍数要求大于等于20
+    print(result['data'][0]['maxLever'])
+    # 大于此保证金张数的70%才可以买入
+    print(result['data'][0]['estMaxAmt'])
 
     # 查看持仓信息  Get Positions
     # result = accountAPI.get_positions('FUTURES', 'BTC-USD-210402')
     # 账单流水查询（近七天） Get Bills Details (recent 7 days)
-    result = accountAPI.get_bills_detail('SWAP', 'USDT', 'cross')
-    print(result)
+    # result = accountAPI.get_bills_detail('SWAP', 'USDT', 'cross')
+    # print(result)
     # 账单流水查询（近三个月） Get Bills Details (recent 3 months)
     # result = accountAPI.get_bills_details('FUTURES', 'BTC','cross')
     # 查看账户配置  Get Account Configuration

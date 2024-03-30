@@ -1,23 +1,21 @@
 # -*- coding: gbk -*-
 import base64
-import datetime
 import hashlib
 import hmac
 import json
-import time
-import urllib
-from datetime import datetime
-
 import numpy as np
 import pandas as pd
 import requests as r
 import talib as ta
+import time
+import urllib
+from datetime import datetime
 
 
 class DataPrice:
     def new_symbol_isbuy(minute, symbol):
 
-        for i in range(5):
+        for i in range(1):
             try:
 
                 if (minute == '1'):
@@ -127,7 +125,7 @@ class DataPrice:
 
     def eth_isbuy(minute, symbol):
         close = 0
-        for i in range(5):
+        for i in range(1):
             try:
 
                 if (minute == '1'):

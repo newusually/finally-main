@@ -103,3 +103,8 @@ class AccountAPI(Client):
     def get_max_withdrawal(self, ccy=''):
         params = {'ccy': ccy}
         return self._request_with_params(GET, MAX_WITHDRAWAL, params)
+
+    # Get 获取杠杆倍数预估信息
+    def get_adjust_leverage_info(self, instType='', mgnMode='', lever='', instId=''):
+        params = {'instType': instType, 'mgnMode': mgnMode, 'lever': lever, 'instId': instId}
+        return self._request_with_params(GET, ADJUST_LEVERAGE_INFO, params)

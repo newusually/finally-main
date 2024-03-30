@@ -19,7 +19,7 @@ POST = "POST"
 SERVER_TIMESTAMP_URL = '/api/v5/public/time'
 
 # account
-POSITION_RISK='/api/v5/account/account-position-risk'
+POSITION_RISK = '/api/v5/account/account-position-risk'
 ACCOUNT_INFO = '/api/v5/account/balance'
 POSITION_INFO = '/api/v5/account/positions'
 BILLS_DETAIL = '/api/v5/account/bills'
@@ -37,6 +37,7 @@ INTEREST_ACCRUED = '/api/v5/account/interest-accrued'
 INTEREST_RATE = '/api/v5/account/interest-rate'
 SET_GREEKS = '/api/v5/account/set-greeks'
 MAX_WITHDRAWAL = '/api/v5/account/max-withdrawal'
+ADJUST_LEVERAGE_INFO = '/api/v5/account/adjust-leverage-info'
 
 # funding
 DEPOSIT_ADDRESS = '/api/v5/asset/deposit-address'
