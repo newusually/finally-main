@@ -1773,7 +1773,6 @@
     <Content Include="static\php\line_stack.php" />
     <Content Include="static\php_class\DataFetcher.php" />
     <Content Include="static\php_class\DataLineStack.php" />
-    <Content Include="test.go" />
     <Content Include="views\views.go" />
   </ItemGroup>
   <ItemGroup>
