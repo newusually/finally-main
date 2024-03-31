@@ -72,13 +72,7 @@ func Getsymbols() []gjson.Result {
 	return instId
 }
 
-func Getprice(symbol string, minute string) {
-	defer func() {
-		if r := recover(); r != nil {
-			// 处理异常
-			fmt.Println("Exception caught:", r)
-		}
-	}()
+func GetKline(symbol string, minute string) (bool, float64, float64, int, []float64, []float64, []float64, []float64, []float64) {
 
 	//fmt.Println(symboldemo, symbol)
 	time.Sleep(time.Millisecond * 10)
@@ -130,6 +124,10 @@ func Getprice(symbol string, minute string) {
 	opens := gjson.Get(src, "data.#.1").Array()
 	highs := gjson.Get(src, "data.#.2").Array()
 
+	if len(closes) < 500 || closes[10].Float() < 0.0001 {
+		return false, 0, 0, 0, []float64{}, []float64{}, []float64{}, []float64{}, []float64{}
+	}
+
 	if len(closes) > 500 && closes[10].Float() > 0.0001 {
 
 		day := make([]string, len(dates))
@@ -164,47 +162,58 @@ func Getprice(symbol string, minute string) {
 
 		macd1 := 2 * (diff[x-1] - dea[x-1])
 		macd2 := 2 * (diff[x-2] - dea[x-2])
+		return choose_ma, macd1, macd2, x, c, o, h, diff, dea
+	}
+	return false, 0, 0, 0, []float64{}, []float64{}, []float64{}, []float64{}, []float64{}
+}
+func Getprice(symbol string, minute string) {
+	defer func() {
+		if r := recover(); r != nil {
+			// 处理异常
+			fmt.Println("Exception caught:", r)
+		}
+	}()
+	choose_ma, macd1, macd2, x, c, o, h, diff, dea := GetKline(symbol, minute)
 
-		if c[x-1]/o[x-1] > 1.0015 && c[x-1]/o[x-1] < 1.015 && choose_ma &&
-			h[x-1]/c[x-1] < 1.005 && h[x-2]/c[x-2] < 1.005 {
-			y := "\n----time--->>" + time.Now().Format("2006-1-2 15:04:02") +
-				",symbol----->>>" + symbol +
-				",----close1/open1--->>" + strconv.FormatFloat(c[x-1]/o[x-1], 'f', 5, 64) +
-				",----close2/open2--->>" + strconv.FormatFloat(c[x-2]/o[x-2], 'f', 5, 64) +
-				",----h[x-1]/c[x-1]--->>" + strconv.FormatFloat(h[x-1]/c[x-1], 'f', 5, 64) +
-				",----h[x-2]/c[x-2]--->>" + strconv.FormatFloat(h[x-2]/c[x-2], 'f', 5, 64) +
-				",----macd1--->>" + strconv.FormatFloat(macd1, 'f', 3, 64) +
-				",----macd1/macd2--->>" + strconv.FormatFloat(macd1/macd2, 'f', 3, 64) +
-				",----diff--->>" + strconv.FormatFloat(diff[x-1], 'f', 3, 64) +
-				",----dea--->>" + strconv.FormatFloat(dea[x-1], 'f', 3, 64) +
-				",----minute--->>" + minute
-			fmt.Println(y)
+	fmt.Println("symbol--->>>", symbol, "minute--->>>", minute, "choose_ma--->>>", choose_ma, "macd1--->>>", macd1, "macd2--->>>", macd2)
+	if c[x-1]/o[x-1] > 1.0015 && c[x-1]/o[x-1] < 1.015 && choose_ma &&
+		h[x-1]/c[x-1] < 1.005 && h[x-2]/c[x-2] < 1.005 {
+		y := "\n----time--->>" + time.Now().Format("2006-1-2 15:04:02") +
+			",symbol----->>>" + symbol +
+			",----close1/open1--->>" + strconv.FormatFloat(c[x-1]/o[x-1], 'f', 5, 64) +
+			",----close2/open2--->>" + strconv.FormatFloat(c[x-2]/o[x-2], 'f', 5, 64) +
+			",----h[x-1]/c[x-1]--->>" + strconv.FormatFloat(h[x-1]/c[x-1], 'f', 5, 64) +
+			",----h[x-2]/c[x-2]--->>" + strconv.FormatFloat(h[x-2]/c[x-2], 'f', 5, 64) +
+			",----macd1--->>" + strconv.FormatFloat(macd1, 'f', 3, 64) +
+			",----macd1/macd2--->>" + strconv.FormatFloat(macd1/macd2, 'f', 3, 64) +
+			",----diff--->>" + strconv.FormatFloat(diff[x-1], 'f', 3, 64) +
+			",----dea--->>" + strconv.FormatFloat(dea[x-1], 'f', 3, 64) +
+			",----minute--->>" + minute
+		fmt.Println(y)
 
-			filePath := "..\\datas\\log\\buylog.txt"
-			file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_APPEND, 0666)
-			if err != nil {
-				panic(err)
-			}
-
-			//及时关闭file句柄
-			defer file.Close()
-			//写入文件时，使用带缓存的 *Writer
-			write := bufio.NewWriter(file)
-
-			write.WriteString("\n")
-			write.WriteString(y)
-
-			//Flush将缓存的文件真正写入到文件中
-			write.Flush()
-
-			fmt.Println("-------------------------------买入--------------------------------->>>")
-
-			cmd := exec.Command("python", "gorun.py", symbol, minute)
-			res, _ := cmd.Output()
-			fmt.Println(string(res))
-			//SendDingMsg(y)
+		filePath := "..\\datas\\log\\buylog.txt"
+		file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_APPEND, 0666)
+		if err != nil {
+			panic(err)
 		}
 
+		//及时关闭file句柄
+		defer file.Close()
+		//写入文件时，使用带缓存的 *Writer
+		write := bufio.NewWriter(file)
+
+		write.WriteString("\n")
+		write.WriteString(y)
+
+		//Flush将缓存的文件真正写入到文件中
+		write.Flush()
+
+		fmt.Println("-------------------------------买入--------------------------------->>>")
+
+		cmd := exec.Command("python", "gorun.py", symbol, minute)
+		res, _ := cmd.Output()
+		fmt.Println(string(res))
+		//SendDingMsg(y)
 	}
 
 }

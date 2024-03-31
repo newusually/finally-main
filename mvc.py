@@ -12,7 +12,6 @@ from datetime import datetime
 import pandas as pd
 import requests
 import requests as r
-import talib as ta
 
 import okx.Account_api as Account
 import okx.Market_api as Market
@@ -333,19 +332,10 @@ class MVC:
         if int(maxLever_now) < 20 or float(estMaxAmt_now) / float(estMaxAmt_example) < 0.2:
             return False
         else:
-            isbuy = False
+
             posData = result['data'][0]['posData']
 
-            if len(posData) < 100 or minute != "low" or minute != "imr":
-                dw = data.new_symbol_isbuy("15m", "ETH-USDT-SWAP")
-
-                diff, dea, _ = ta.MACD(dw["close"], 12, 26, 60)
-                macd = diff - dea
-
-                if macd.iloc[-1] > 0:
-                    isbuy = True
-
-            if isbuy or minute == "low" or minute == "imr":
+            if len(posData) < 100 or minute == "low" or minute == "imr":
 
                 sr, dollar, dollar_eth = User.get_user_sr()
                 sr1 = str(sr)

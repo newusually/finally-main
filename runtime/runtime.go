@@ -64,29 +64,34 @@ func Run(minute string) {
 		}
 	}()
 
-	symbollist := mvc.Getsymbols()
+	_, _, macdEth15m, _, _, _, _, _, _ := mvc.GetKline("ETH-USDT-SWAP", "15m")
+	fmt.Println("minute--->>>", minute, "macdEth15m--->>>", macdEth15m, "ETH-USDT-SWAP")
+	if macdEth15m > 0 {
+		symbollist := mvc.Getsymbols()
 
-	for i := 0; i < len(symbollist); i++ {
-		symbol := symbollist[i].String()
-		re := regexp.MustCompile(`^(\w+)-`)
-		match := re.FindStringSubmatch(symbol)
+		for i := 0; i < len(symbollist); i++ {
+			symbol := symbollist[i].String()
+			re := regexp.MustCompile(`^(\w+)-`)
+			match := re.FindStringSubmatch(symbol)
 
-		if len(match) > 1 {
-			symbol = match[1] + "-USDT-SWAP"
-		} else {
-			fmt.Println("No match found")
+			if len(match) > 1 {
+				symbol = match[1] + "-USDT-SWAP"
+			} else {
+				fmt.Println("No match found")
+			}
+
+			choose := symbol != "USTC-USDT-SWAP" && symbol != "USDC-USDT-SWAP" &&
+				symbol != "BTC-USDT-SWAP" && symbol != "ETH-USDT-SWAP" && symbol != "ETC-USDT-SWAP" &&
+				symbol != "BCH-USDT-SWAP" && symbol != "DOGE-USDT-SWAP" && symbol != "SOL-USDT-SWAP" &&
+				symbol != "XRP-USDT-SWAP" && symbol != "AVAX-USDT-SWAP" && symbol != "BSV-USDT-SWAP" &&
+				symbol != "OP-USDT-SWAP" && symbol != "LTC-USDT-SWAP" && symbol != "ADA-USDT-SWAP" &&
+				symbol != "LINK-USDT-SWAP" && symbol != "TRX-USDT-SWAP" && symbol != "MKR-USDT-SWAP"
+
+			if choose {
+				mvc.Getprice(symbol, minute)
+			}
+
 		}
-
-		choose := symbol != "USTC-USDT-SWAP" && symbol != "USDC-USDT-SWAP" &&
-			symbol != "BTC-USDT-SWAP" && symbol != "ETH-USDT-SWAP" && symbol != "ETC-USDT-SWAP" &&
-			symbol != "BCH-USDT-SWAP" && symbol != "DOGE-USDT-SWAP" && symbol != "SOL-USDT-SWAP" &&
-			symbol != "XRP-USDT-SWAP" && symbol != "AVAX-USDT-SWAP" && symbol != "BSV-USDT-SWAP" &&
-			symbol != "OP-USDT-SWAP" && symbol != "LTC-USDT-SWAP" && symbol != "ADA-USDT-SWAP" &&
-			symbol != "LINK-USDT-SWAP" && symbol != "TRX-USDT-SWAP" && symbol != "MKR-USDT-SWAP"
-
-		if choose {
-			mvc.Getprice(symbol, minute)
-		}
-
 	}
+
 }
