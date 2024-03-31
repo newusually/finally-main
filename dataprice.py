@@ -3,13 +3,14 @@ import base64
 import hashlib
 import hmac
 import json
+import time
+import urllib
+from datetime import datetime
+
 import numpy as np
 import pandas as pd
 import requests as r
 import talib as ta
-import time
-import urllib
-from datetime import datetime
 
 
 class DataPrice:
@@ -113,12 +114,8 @@ class DataPrice:
                 if (minute == '15m'):
                     minute = '15'
 
-                df.to_csv(
-                    f'../datas/new_data/' + symbol + '/' + symbol + '-' + str(minute) + 'min.csv', index=False)
+                return df
 
-                df[['date', 'close', 'open', 'high', 'low', 'vol']].to_csv(
-                    f'../datas/old_data/' + symbol + '/' + symbol + '-' + str(minute) + 'min.csv', index=0)
-                break
             except:
                 time.sleep(0.5)
                 continue

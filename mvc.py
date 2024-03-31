@@ -12,6 +12,7 @@ from datetime import datetime
 import pandas as pd
 import requests
 import requests as r
+import talib as ta
 
 import okx.Account_api as Account
 import okx.Market_api as Market
@@ -130,13 +131,13 @@ class MVC:
     def getuplRatio_instId(api_key, secret_key, passphrase, flag):
 
         # 读取文件
-        df = pd.read_csv("..\\datas\\log\\buylog.txt", header=None)
+        # df = pd.read_csv("..\\datas\\log\\buylog.txt", header=None)
 
         # 获取最后10行
-        last_10_lines = df.tail(10)
+        # last_10_lines = df.tail(10)
 
         # 保存到原文件，替换源文件
-        last_10_lines.to_csv("..\\datas\\log\\buylog.txt", header=False, index=False)
+        # last_10_lines.to_csv("..\\datas\\log\\buylog.txt", header=False, index=False)
 
         # account api
         accountAPI = Account.AccountAPI(api_key, secret_key, passphrase, False, flag)
@@ -205,11 +206,8 @@ class MVC:
 
                     # print(log)
 
-                    files = f'../datas/new_data/' + symbol + '/' + symbol + '-15min.csv'
+                    dw = data.new_symbol_isbuy("15m", symbol)
 
-                    data.new_symbol_isbuy("15m", symbol)
-
-                    dw = pd.read_csv(files)
                     # 首先确保整列可以转换为浮点数
                     issus = False
                     try:
@@ -335,10 +333,19 @@ class MVC:
         if int(maxLever_now) < 20 or float(estMaxAmt_now) / float(estMaxAmt_example) < 0.2:
             return False
         else:
-
+            isbuy = False
             posData = result['data'][0]['posData']
 
-            if len(posData) < 60 or minute == "low" or minute == "imr":
+            if len(posData) < 100 or minute != "low" or minute != "imr":
+                dw = data.new_symbol_isbuy("15m", "ETH-USDT-SWAP")
+
+                diff, dea, _ = ta.MACD(dw["close"], 12, 26, 60)
+                macd = diff - dea
+
+                if macd.iloc[-1] > 0:
+                    isbuy = True
+
+            if isbuy or minute == "low" or minute == "imr":
 
                 sr, dollar, dollar_eth = User.get_user_sr()
                 sr1 = str(sr)
@@ -433,10 +440,10 @@ class MVC:
                     avgPx = float(result['data'][0]['avgPx'])
 
                     # 策略委托下单  Place Algo Order
-                    result = tradeAPI.place_algo_order(symbol, 'cross', 'sell', ordType='conditional',
-                                                       sz=str(onlyorder), posSide='long',
-                                                       tpTriggerPx=str(float(avgPx) * r),
-                                                       tpOrdPx=str(float(avgPx) * r))
+                    tradeAPI.place_algo_order(symbol, 'cross', 'sell', ordType='conditional',
+                                              sz=str(onlyorder), posSide='long',
+                                              tpTriggerPx=str(float(avgPx) * r),
+                                              tpOrdPx=str(float(avgPx) * r))
 
 
 # 发钉钉的类先声明

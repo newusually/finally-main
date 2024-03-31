@@ -1,11 +1,7 @@
-# -*- coding: utf-8 -*-
-import pandas as pd
+# -*- coding: gbk -*-
+from mvc import MVC
+from userinfo import User
 
-# 读取文件
-df = pd.read_csv("..\\datas\\log\\buylog.txt", header=None)
-
-# 获取最后10行
-last_10_lines = df.tail(10)
-
-# 保存到原文件，替换源文件
-last_10_lines.to_csv("..\\datas\\log\\buylog.txt", header=False, index=False)
+if __name__ == '__main__':
+    api_key, secret_key, passphrase, flag = User.get_userinfo()
+    MVC.orderbuy(api_key, secret_key, passphrase, flag, "SUSHI-USDT-SWAP", "15m")
