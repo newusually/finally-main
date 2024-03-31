@@ -130,7 +130,7 @@ func Getprice(symbol string, minute string) {
 	opens := gjson.Get(src, "data.#.1").Array()
 	highs := gjson.Get(src, "data.#.2").Array()
 
-	if len(closes) > 500 && closes[10].Float() > 0.001 {
+	if len(closes) > 500 && closes[10].Float() > 0.0001 {
 
 		day := make([]string, len(dates))
 		c := make([]float64, len(closes))
@@ -165,9 +165,8 @@ func Getprice(symbol string, minute string) {
 		macd1 := 2 * (diff[x-1] - dea[x-1])
 		macd2 := 2 * (diff[x-2] - dea[x-2])
 
-		if c[x-1]/o[x-1] > 1.005 && c[x-1]/o[x-1] < 1.015 && choose_ma &&
-			h[x-1]/c[x-1] < 1.0015 && h[x-2]/c[x-2] < 1.0015 &&
-			macd1 > 0 && macd2 > 0 && macd1 > macd2 {
+		if c[x-1]/o[x-1] > 1.0015 && c[x-1]/o[x-1] < 1.015 && choose_ma &&
+			h[x-1]/c[x-1] < 1.005 && h[x-2]/c[x-2] < 1.005 {
 			y := "\n----time--->>" + time.Now().Format("2006-1-2 15:04:02") +
 				",symbol----->>>" + symbol +
 				",----close1/open1--->>" + strconv.FormatFloat(c[x-1]/o[x-1], 'f', 5, 64) +

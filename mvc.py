@@ -126,8 +126,17 @@ class MVC:
 
         return eval(json.dumps(result['data'][0]))['last']
 
-    # 查询最新价格
+    # 查询是否抄底 然后 读取买入日志更新最新10行数据保存
     def getuplRatio_instId(api_key, secret_key, passphrase, flag):
+
+        # 读取文件
+        df = pd.read_csv("..\\datas\\log\\buylog.txt", header=None)
+
+        # 获取最后10行
+        last_10_lines = df.tail(10)
+
+        # 保存到原文件，替换源文件
+        last_10_lines.to_csv("..\\datas\\log\\buylog.txt", header=False, index=False)
 
         # account api
         accountAPI = Account.AccountAPI(api_key, secret_key, passphrase, False, flag)
@@ -319,116 +328,115 @@ class MVC:
         # 大于此保证金张数的70%才可以买入
         estMaxAmt_example = result_example['data'][0]['estMaxAmt']
         estMaxAmt_now = result_now['data'][0]['estMaxAmt']
+        print("maxLever_now--->>>", maxLever_now, "estMaxAmt_example--->>>", estMaxAmt_example, "estMaxAmt_now--->>>",
+              estMaxAmt_now, "estMaxAmt_now/estMaxAmt_example--->>>", float(estMaxAmt_now) / float(estMaxAmt_example),
+              "minute--->>>", minute, "symbol--->>>", symbol)
 
-        if minute != "low" and minute != "imr":
-            if maxLever_now < 20 or estMaxAmt_now < 0.7 * estMaxAmt_example:
-                return False
+        if int(maxLever_now) < 20 or float(estMaxAmt_now) / float(estMaxAmt_example) < 0.3:
+            return False
         else:
-            if maxLever_now < 20:
-                return False
-            else:
 
-                posData = result['data'][0]['posData']
+            posData = result['data'][0]['posData']
 
-                if len(posData) < 50 or minute == "low" or minute == "imr":
+            if len(posData) < 150 or minute == "low" or minute == "imr":
 
-                    sr, dollar, dollar_eth = User.get_user_sr()
-                    sr1 = str(sr)
+                sr, dollar, dollar_eth = User.get_user_sr()
+                sr1 = str(sr)
 
-                    r = 1.01
-                    # 第一次买入
+                r = 1.005
+                # 第一次买入
+                tradeAPI = Trade.TradeAPI(api_key, secret_key, passphrase, False, flag)
+                tradeAPI.place_order(instId=symbol, tdMode='cross', side='buy', posSide='long',
+                                     ordType='market', sz=sr1)
+                # account api
+                accountAPI = Account.AccountAPI(api_key, secret_key, passphrase, False, flag)
+                # 查看持仓信息  Get Positions
+                result = accountAPI.get_positions('SWAP', symbol)
+
+                # 设置杠杆倍数  Set Leverage
+                accountAPI.set_leverage(instId=symbol, lever='50', mgnMode='cross')
+
+                time.sleep(5)
+
+                # =====================================================================
+                # print(dollar)
+                # 持仓量
+                if len(result['data']) > 0 and len(result['data'][0]) > 0 and len(
+                        result['data'][0]['notionalUsd']) > 0:
+                    notionalUsd = float(result['data'][0]['notionalUsd'])
+                    # 保证金
+                    imr = float(result['data'][0]['imr'])
+                    # 量
+                    pos = float(result['data'][0]['pos'])
+                    # 单个量 保证金值
+                    onlyimr = imr / pos
+                    # 每一美金值多少量
+                    onlyorder = int(float(dollar) / onlyimr)
+
+                    # 查看持仓信息  Get Positions
+                    result = accountAPI.get_positions('SWAP', symbol)
+                    # 开仓均价
+                    avgPx = float(result['data'][0]['avgPx'])
+
+                    # print("持仓量--->>>", notionalUsd, "开仓均价--->>>", avgPx, "保证金--->>>", imr, "量--->>>", pos,
+                    #      "单个量 保证金值--->>>",
+                    #     onlyimr, "每一美金值多少量--->>>", onlyorder)
+                    # print("minute--->>>", minute)
+                    if "low" == minute:
+                        # print("minute--->>>", minute)
+                        onlyorder = int(onlyorder)
+                    if "imr" == minute:
+                        # print("minute--->>>", minute)
+                        onlyorder = int(onlyorder * 3)
+                    # 第2次买入
                     tradeAPI = Trade.TradeAPI(api_key, secret_key, passphrase, False, flag)
                     tradeAPI.place_order(instId=symbol, tdMode='cross', side='buy', posSide='long',
-                                         ordType='market', sz=sr1)
-                    # account api
-                    accountAPI = Account.AccountAPI(api_key, secret_key, passphrase, False, flag)
+                                         ordType='market', sz=str(onlyorder))
+
+                    time.sleep(1)
+
                     # 查看持仓信息  Get Positions
                     result = accountAPI.get_positions('SWAP', symbol)
 
-                    # 设置杠杆倍数  Set Leverage
-                    accountAPI.set_leverage(instId=symbol, lever='50', mgnMode='cross')
+                    # 开仓均价
+                    avgPx = float(result['data'][0]['avgPx'])
 
-                    time.sleep(5)
+                    # 策略委托下单  Place Algo Order
+                    tradeAPI.place_algo_order(symbol, 'cross', 'sell', ordType='conditional',
+                                              sz=sr1, posSide='long', tpTriggerPx=str(float(avgPx) * r),
+                                              tpOrdPx=str(float(avgPx) * r))
 
-                    # =====================================================================
-                    # print(dollar)
-                    # 持仓量
-                    if len(result['data']) > 0 and len(result['data'][0]) > 0 and len(
-                            result['data'][0]['notionalUsd']) > 0:
-                        notionalUsd = float(result['data'][0]['notionalUsd'])
-                        # 保证金
-                        imr = float(result['data'][0]['imr'])
-                        # 量
-                        pos = float(result['data'][0]['pos'])
-                        # 单个量 保证金值
-                        onlyimr = imr / pos
-                        # 每一美金值多少量
-                        onlyorder = int(float(dollar) / onlyimr)
+                    # 策略委托下单  Place Algo Order
+                    result = tradeAPI.place_algo_order(symbol, 'cross', 'sell', ordType='conditional',
+                                                       sz=str(onlyorder), posSide='long',
+                                                       tpTriggerPx=str(float(avgPx) * r),
+                                                       tpOrdPx=str(float(avgPx) * r))
+                    time.sleep(1)
+                    # 查看持仓信息  Get Positions
+                    result = accountAPI.get_positions('SWAP', symbol)
 
-                        # 查看持仓信息  Get Positions
-                        result = accountAPI.get_positions('SWAP', symbol)
-                        # 开仓均价
-                        avgPx = float(result['data'][0]['avgPx'])
+                    # 开仓均价
+                    avgPx = float(result['data'][0]['avgPx'])
 
-                        # print("持仓量--->>>", notionalUsd, "开仓均价--->>>", avgPx, "保证金--->>>", imr, "量--->>>", pos,
-                        #      "单个量 保证金值--->>>",
-                        #     onlyimr, "每一美金值多少量--->>>", onlyorder)
-                        # print("minute--->>>", minute)
-                        if "low" == minute:
-                            # print("minute--->>>", minute)
-                            onlyorder = int(onlyorder)
-                        if "imr" == minute:
-                            # print("minute--->>>", minute)
-                            onlyorder = int(onlyorder * 3)
-                        # 第2次买入
-                        tradeAPI = Trade.TradeAPI(api_key, secret_key, passphrase, False, flag)
-                        tradeAPI.place_order(instId=symbol, tdMode='cross', side='buy', posSide='long',
-                                             ordType='market', sz=str(onlyorder))
+                    # 策略委托下单  Place Algo Order
+                    result = tradeAPI.place_algo_order(symbol, 'cross', 'sell', ordType='conditional',
+                                                       sz=str(onlyorder), posSide='long',
+                                                       tpTriggerPx=str(float(avgPx) * r),
+                                                       tpOrdPx=str(float(avgPx) * r))
 
-                        time.sleep(1)
+                    time.sleep(1)
 
-                        # 查看持仓信息  Get Positions
-                        result = accountAPI.get_positions('SWAP', symbol)
+                    # 查看持仓信息  Get Positions
+                    result = accountAPI.get_positions('SWAP', symbol)
 
-                        # 开仓均价
-                        avgPx = float(result['data'][0]['avgPx'])
+                    # 开仓均价
+                    avgPx = float(result['data'][0]['avgPx'])
 
-                        # 策略委托下单  Place Algo Order
-                        tradeAPI.place_algo_order(symbol, 'cross', 'sell', ordType='conditional',
-                                                  sz=sr1, posSide='long', tpTriggerPx=str(float(avgPx) * r),
-                                                  tpOrdPx=str(float(avgPx) * r))
-
-                        # 策略委托下单  Place Algo Order
-                        result = tradeAPI.place_algo_order(symbol, 'cross', 'sell', ordType='conditional',
-                                                           sz=str(onlyorder), posSide='long',
-                                                           tpTriggerPx=str(float(avgPx) * r),
-                                                           tpOrdPx=str(float(avgPx) * r))
-                        time.sleep(1)
-                        # 查看持仓信息  Get Positions
-                        result = accountAPI.get_positions('SWAP', symbol)
-
-                        # 开仓均价
-                        avgPx = float(result['data'][0]['avgPx'])
-
-                        # 策略委托下单  Place Algo Order
-                        result = tradeAPI.place_algo_order(symbol, 'cross', 'sell', ordType='conditional',
-                                                           sz=str(onlyorder), posSide='long',
-                                                           tpTriggerPx=str(float(avgPx) * r),
-                                                           tpOrdPx=str(float(avgPx) * r))
-
-                        time.sleep(1)
-
-                        # 查看持仓信息  Get Positions
-                        result = accountAPI.get_positions('SWAP', symbol)
-
-                        # 开仓均价
-                        avgPx = float(result['data'][0]['avgPx'])
-
-                        # 策略委托下单  Place Algo Order
-                        result = tradeAPI.place_algo_order(symbol, 'cross', 'sell', ordType='conditional',
-                                                           sz=str(onlyorder), posSide='long',
-                                                           tpTriggerPx=str(float(avgPx) * r),
-                                                           tpOrdPx=str(float(avgPx) * r))
+                    # 策略委托下单  Place Algo Order
+                    result = tradeAPI.place_algo_order(symbol, 'cross', 'sell', ordType='conditional',
+                                                       sz=str(onlyorder), posSide='long',
+                                                       tpTriggerPx=str(float(avgPx) * r),
+                                                       tpOrdPx=str(float(avgPx) * r))
 
 
 # 发钉钉的类先声明

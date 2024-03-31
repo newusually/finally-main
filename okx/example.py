@@ -43,12 +43,15 @@ if __name__ == '__main__':
     # result = accountAPI.get_position_risk('SWAP')
     # 查看账户余额  Get Balance
     # 获取保证金SUSHI-USDT-SWAP的最大保证金张数 大于此保证金张数的70%才可以买入
-    result = accountAPI.get_adjust_leverage_info('SWAP', 'cross', 50, 'SUSHI-USDT-SWAP')
-    print(result['data'][0])
+    result_example = accountAPI.get_adjust_leverage_info('SWAP', 'cross', 50, 'SUSHI-USDT-SWAP')
+    result_now = accountAPI.get_adjust_leverage_info('SWAP', 'cross', 50, "AEVO-USDT-SWAP")
     # 最大倍数要求大于等于20
-    print(result['data'][0]['maxLever'])
+    maxLever_now = result_now['data'][0]['maxLever']
     # 大于此保证金张数的70%才可以买入
-    print(result['data'][0]['estMaxAmt'])
+    estMaxAmt_example = result_example['data'][0]['estMaxAmt']
+    estMaxAmt_now = result_now['data'][0]['estMaxAmt']
+    print("maxLever_now--->>>", maxLever_now, "estMaxAmt_example--->>>", estMaxAmt_example, "estMaxAmt_now--->>>",
+          estMaxAmt_now, "estMaxAmt_now/estMaxAmt_example--->>>", float(estMaxAmt_now) / float(estMaxAmt_example))
 
     # 查看持仓信息  Get Positions
     # result = accountAPI.get_positions('FUTURES', 'BTC-USD-210402')
