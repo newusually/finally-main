@@ -332,13 +332,13 @@ class MVC:
               estMaxAmt_now, "estMaxAmt_now/estMaxAmt_example--->>>", float(estMaxAmt_now) / float(estMaxAmt_example),
               "minute--->>>", minute, "symbol--->>>", symbol)
 
-        if int(maxLever_now) < 20 or float(estMaxAmt_now) / float(estMaxAmt_example) < 0.3:
+        if int(maxLever_now) < 20 or float(estMaxAmt_now) / float(estMaxAmt_example) < 0.2:
             return False
         else:
 
             posData = result['data'][0]['posData']
 
-            if len(posData) < 150 or minute == "low" or minute == "imr":
+            if len(posData) < 60 or minute == "low" or minute == "imr":
 
                 sr, dollar, dollar_eth = User.get_user_sr()
                 sr1 = str(sr)
