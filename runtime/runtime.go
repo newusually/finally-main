@@ -64,10 +64,10 @@ func Run(minute string) {
 		}
 	}()
 
-	_, _, macdEth15m, _, _, _, _, diffEth15m, deaEth15m := mvc.GetKline("ETH-USDT-SWAP", "15m")
-	fmt.Println("macdEth15m:", macdEth15m, "diffEth15m:", diffEth15m[len(diffEth15m)-1], "deaEth15m:", deaEth15m[len(deaEth15m)-1], "minute:", minute)
+	//_, _, macdEth15m, _, _, _, _, _, _ := mvc.GetKline("ETH-USDT-SWAP", "15m")
 
-	if macdEth15m > 0 && diffEth15m[len(diffEth15m)-1] > 0 && deaEth15m[len(deaEth15m)-1] > 0 {
+	//if macdEth15m > 0 {
+	if true {
 		symbollist := mvc.Getsymbols()
 
 		for i := 0; i < len(symbollist); i++ {

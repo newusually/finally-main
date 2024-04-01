@@ -18,13 +18,6 @@ import (
 func Getsymbols() []gjson.Result {
 	time.Sleep(time.Millisecond)
 
-	defer func() {
-		if r := recover(); r != nil {
-			// 处理异常
-			fmt.Println("Exception caught:", r)
-		}
-	}()
-
 	// 获取当前时间 或者使用 time.Date(year, month, ...)
 	t := time.Now()
 	timeStamp := t.Unix()
@@ -167,17 +160,15 @@ func GetKline(symbol string, minute string) (bool, float64, float64, int, []floa
 	return false, 0, 0, 0, []float64{}, []float64{}, []float64{}, []float64{}, []float64{}
 }
 func Getprice(symbol string, minute string) {
-	defer func() {
-		if r := recover(); r != nil {
-			// 处理异常
-			fmt.Println("Exception caught:", r)
-		}
-	}()
-	choose_ma, macd1, macd2, x, c, o, h, diff, dea := GetKline(symbol, minute)
 
-	fmt.Println("symbol--->>>", symbol, "minute--->>>", minute, "choose_ma--->>>", choose_ma, "macd1--->>>", macd1, "macd2--->>>", macd2)
+	choose_ma, macd1, macd2, x, c, o, h, diff, dea := GetKline(symbol, minute)
+	if x < 500 {
+		return
+	}
+	//fmt.Println(symbol, minute, x)
+	//fmt.Println("symbol--->>>", symbol, "minute--->>>", minute, "choose_ma--->>>", choose_ma, "macd1--->>>", macd1, "macd2--->>>", macd2)
 	if c[x-1]/o[x-1] > 1.0015 && c[x-1]/o[x-1] < 1.015 && choose_ma &&
-		h[x-1]/c[x-1] < 1.005 && h[x-2]/c[x-2] < 1.005 {
+		h[x-1]/c[x-1] < 1.005 && h[x-2]/c[x-2] < 1.005 && diff[x-1] > 0 && dea[x-1] > 0 && macd1 > 0 && macd1/macd2 > 1.5 {
 		y := "\n----time--->>" + time.Now().Format("2006-1-2 15:04:02") +
 			",symbol----->>>" + symbol +
 			",----close1/open1--->>" + strconv.FormatFloat(c[x-1]/o[x-1], 'f', 5, 64) +

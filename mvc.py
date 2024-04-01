@@ -233,7 +233,7 @@ class MVC:
 
     # 获取实时账户资金信息 每分钟查询一次
     def getcashbal(api_key, secret_key, passphrase, flag):
-        # 定义要存放文件的路径../datas/uplRatio/log/cashbal.txt
+        # 定义要存放文件的路径
         folder_path = '../datas/uplRatio/log'
         file_path = os.path.join(folder_path, 'cashbal.txt')
 
@@ -245,24 +245,31 @@ class MVC:
         with open(file_path, 'w', encoding='utf-8') as file:
             # 将日志信息写入文件
             file.write("")
+
         # account api
         accountAPI = Account.AccountAPI(api_key, secret_key, passphrase, False, flag)
-        # 查看账户持仓风险 GET Position_risk
-        # result = accountAPI.get_position_risk('SWAP')
+
         # 查看账户余额  Get Balance
         result = accountAPI.get_account('USDT')['data'][0]["details"][0]
         swap = accountAPI.get_position_risk('SWAP')
-        posData = swap['data'][0]['posData']
-        # print(result)
-        log = ("\n合约订单数量----->>>" + str(
-            len(posData)) + "个,  " + "币种折算权益----->>>" + "{:.2f}".format(
-            float(result["disEq"])) + "＄,  " + "\n实际未结算盈亏总额：--->>>" + "{:.2f}".format(
-            float(result["upl"])) + "＄,  " + "USDT币种余额----->>>" + "{:.2f}".format(float(result["cashBal"])) +
-               "＄," +
-               "\n保证金率----->>>" + "{:.2f}".format(
-                    float(result["mgnRatio"]) * 100) + "%,  可用余额----->>>" + "{:.2f}".format(
-                    float(result["availBal"])) + "＄,  " +
-               "\n,币种占用金额--->>>" + "{:.2f}".format(float(result["frozenBal"])) + "＄" + "\n\n")
+        posData = 0 if not swap['data'][0]['posData'] else swap['data'][0]['posData']
+
+        # 检查每个值，如果为空或者为0，就打印0，否则打印实际的值
+        disEq = 0 if not result["disEq"] else float(result["disEq"])
+        upl = 0 if not result["upl"] else float(result["upl"])
+        cashBal = 0 if not result["cashBal"] else float(result["cashBal"])
+        mgnRatio = 0 if not result["mgnRatio"] else float(result["mgnRatio"])
+        availBal = 0 if not result["availBal"] else float(result["availBal"])
+        frozenBal = 0 if not result["frozenBal"] else float(result["frozenBal"])
+
+        log = ("\n合约订单数量----->>>" + str(len(posData)) + "个,  " +
+               "币种折算权益----->>>" + "{:.2f}".format(disEq) + "＄,  " +
+               "\n实际未结算盈亏总额：--->>>" + "{:.2f}".format(upl) + "＄,  " +
+               "USDT币种余额----->>>" + "{:.2f}".format(cashBal) + "＄," +
+               "\n保证金率----->>>" + "{:.2f}".format(mgnRatio * 100) + "%,  " +
+               "可用余额----->>>" + "{:.2f}".format(availBal) + "＄,  " +
+               "\n,币种占用金额--->>>" + "{:.2f}".format(frozenBal) + "＄" + "\n\n")
+
         # 现在路径存在，打开文件并在尾部追加内容，指定编码为UTF-8
         with open(file_path, 'a', encoding='utf-8') as file:
             # 将日志信息写入文件
@@ -278,7 +285,8 @@ class MVC:
         # 查看账户余额  Get Balance
         result = accountAPI.get_account('USDT')['data'][0]["details"][0]
         swap = accountAPI.get_position_risk('SWAP')
-        posData = swap['data'][0]['posData']
+      
+        posData = 0 if not swap['data'][0]['posData'] else swap['data'][0]['posData']
 
         today = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
@@ -329,11 +337,12 @@ class MVC:
               estMaxAmt_now, "estMaxAmt_now/estMaxAmt_example--->>>", float(estMaxAmt_now) / float(estMaxAmt_example),
               "minute--->>>", minute, "symbol--->>>", symbol)
 
-        if int(maxLever_now) < 20 or float(estMaxAmt_now) / float(estMaxAmt_example) < 0.2:
+        if int(maxLever_now) < 20 or float(estMaxAmt_now) / float(estMaxAmt_example) < 0.3:
             return False
         else:
 
-            posData = result['data'][0]['posData']
+            swap = accountAPI.get_position_risk('SWAP')
+            posData = 0 if not swap['data'][0]['posData'] else swap['data'][0]['posData']
 
             if len(posData) < 100 or minute == "low" or minute == "imr":
 
