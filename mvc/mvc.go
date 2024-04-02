@@ -65,7 +65,125 @@ func Getsymbols() []gjson.Result {
 	return instId
 }
 
-func GetKline(symbol string, minute string) (bool, float64, float64, int, []float64, []float64, []float64, []float64, []float64) {
+func GetIsBuy(symbol string, minute string) (bool, string, string, string, string, string) {
+
+	time.Sleep(time.Millisecond * 10)
+
+	// 获取当前时间 或者使用 time.Date(year, month, ...)
+	t := time.Now()
+	timeStamp := t.Unix()
+	client := &http.Client{
+
+		Transport: &http.Transport{
+
+			TLSNextProto: map[string]func(string, *tls.Conn) http.RoundTripper{},
+		},
+	}
+	req, err := http.NewRequest("GET", "https://www.okx.com/priapi/v5/rubik/stat/taker-volume?instType=CONTRACTS&period="+minute+"&ccy="+symbol+"&t="+strconv.Itoa(int(timeStamp)), nil)
+	if err != nil {
+		panic(err)
+
+	}
+	req.Header.Set("authority", "www.okx.com")
+	req.Header.Set("timeout", "10000")
+	req.Header.Set("x-cdn", "https://www.okx.com")
+	req.Header.Set("devid", "a5ceb850-4efb-4a3f-baff-21da4fce8858")
+	req.Header.Set("accept-language", "zh-CN")
+	req.Header.Set("user-agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36 SE 2.X MetaSr 1.0")
+	req.Header.Set("accept", "application/json")
+	req.Header.Set("x-utc", "8")
+	req.Header.Set("sec-fetch-dest", "empty")
+	req.Header.Set("app-type", "web")
+	req.Header.Set("sec-fetch-site", "same-origin")
+	req.Header.Set("sec-fetch-mode", "cors")
+	req.Header.Set("referer", "https://www.okx.com/zh-hans/markets/data/contracts")
+	req.Header.Set("cookie", "locale=zh_CN; defaultLocale=zh_CN; _gcl_au=1.1.1520807996."+strconv.Itoa(int(timeStamp))+"; _ga=GA1.2.1752370991."+strconv.Itoa(int(timeStamp))+"; _gid=GA1.2.650161560."+strconv.Itoa(int(timeStamp))+"; amp_56bf9d=y9J2I5hN4sKjIiyZROsSAs...1g1isehgq.1g1isehgs.2.0.2; _gat_UA-35324627-3=1")
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+
+	}
+	defer resp.Body.Close()
+	bodyText, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	src := string(bodyText)
+
+	dates := gjson.Get(src, "data.#.0").Array()
+
+	sales := gjson.Get(src, "data.#.1").Array()
+	buys := gjson.Get(src, "data.#.2").Array()
+
+	day := make([]string, len(dates))
+	sale := make([]float64, len(sales))
+	buy := make([]float64, len(buys))
+
+	for i := 0; i < len(dates); i++ {
+
+		a := dates[len(dates)-i-1].Str
+		e, _ := strconv.ParseInt(a, 10, 64)
+		day[i] = time.Unix(0, e*int64(time.Millisecond)).Format("2006-01-02 15:04:05")
+
+		b := sales[len(sales)-i-1].Str
+		f, _ := strconv.ParseFloat(b, 64)
+		sale[i] = f
+
+		d := buys[len(buys)-i-1].Str
+		g, _ := strconv.ParseFloat(d, 64)
+		buy[i] = g
+	}
+	x := len(day)
+	if x > 60 {
+		var sumBuy1, sumSale1 float64
+		var sumBuy2, sumSale2 float64
+		var sumBuy3, sumSale3 float64
+		for i := 0; i < 60; i++ {
+			sumBuy1 += buy[x-1-i]
+			sumSale1 += sale[x-1-i]
+			sumBuy2 += buy[x-2-i]
+			sumSale2 += sale[x-2-i]
+			sumBuy3 += buy[x-3-i]
+			sumSale3 += sale[x-3-i]
+		}
+		buySaleStr1 := fmt.Sprintf("%.5f", sumBuy1/sumSale1)
+		buySale1, _ := strconv.ParseFloat(buySaleStr1, 64)
+
+		buySaleStr2 := fmt.Sprintf("%.5f", sumBuy2/sumSale2)
+		buySale2, _ := strconv.ParseFloat(buySaleStr2, 64)
+
+		buySaleStr3 := fmt.Sprintf("%.5f", sumBuy3/sumSale3)
+		buySale3, _ := strconv.ParseFloat(buySaleStr3, 64)
+
+		// Parse the date string to time.Time
+		layout := "2006-01-02 15:04:05"
+		ts, _ := time.Parse(layout, day[x-1])
+
+		// Get the current time
+		now := time.Now()
+
+		// Calculate the time 15 minutes before and after the current time
+		fifteenMinutesBefore := now.Add(-(15) * time.Minute)
+		fifteenMinutesAfter := now.Add((8 * 60) * time.Minute)
+
+		// Check if t is between fifteenMinutesBefore and fifteenMinutesAfter
+		if ts.After(fifteenMinutesBefore) && ts.Before(fifteenMinutesAfter) {
+			if buySale1 > 1 && buySale2 > 1 && buySale3 > 1 &&
+				buySale1/buySale2 > 1 && buySale2/buySale3 > 1 &&
+				buySale1/buySale2 > buySale2/buySale3 {
+				return true, fmt.Sprintf("%.5f", buySale1), fmt.Sprintf("%.5f", buySale2), fmt.Sprintf("%.5f", buySale3), fmt.Sprintf("%.5f", buySale1/buySale2), fmt.Sprintf("%.5f", buySale2/buySale3)
+			} else {
+				return false, fmt.Sprintf("%.5f", buySale1), fmt.Sprintf("%.5f", buySale2), fmt.Sprintf("%.5f", buySale3), fmt.Sprintf("%.5f", buySale1/buySale2), fmt.Sprintf("%.5f", buySale2/buySale3)
+			}
+
+		}
+
+	}
+	return false, "0", "0", "0", "0", "0"
+}
+
+func GetKline(symbol string, minute string) (bool, float64, float64, float64, int, []float64, float64, float64) {
 
 	//fmt.Println(symboldemo, symbol)
 	time.Sleep(time.Millisecond * 10)
@@ -116,9 +234,10 @@ func GetKline(symbol string, minute string) (bool, float64, float64, int, []floa
 	dates := gjson.Get(src, "data.#.0").Array()
 	opens := gjson.Get(src, "data.#.1").Array()
 	highs := gjson.Get(src, "data.#.2").Array()
+	vols := gjson.Get(src, "data.#.6").Array()
 
 	if len(closes) < 500 || closes[10].Float() < 0.0001 {
-		return false, 0, 0, 0, []float64{}, []float64{}, []float64{}, []float64{}, []float64{}
+		return false, 0, 0, 0, 0, []float64{}, 0, 0
 	}
 
 	if len(closes) > 500 && closes[10].Float() > 0.0001 {
@@ -127,6 +246,7 @@ func GetKline(symbol string, minute string) (bool, float64, float64, int, []floa
 		c := make([]float64, len(closes))
 		o := make([]float64, len(opens))
 		h := make([]float64, len(highs))
+		v := make([]float64, len(vols))
 
 		for i := 0; i < len(closes); i++ {
 
@@ -146,6 +266,10 @@ func GetKline(symbol string, minute string) (bool, float64, float64, int, []floa
 			rs, _ := strconv.ParseFloat(p, 64)
 			h[i] = rs
 
+			vv := vols[len(vols)-i-1].Str
+			vv1, _ := strconv.ParseFloat(vv, 64)
+			v[i] = vv1
+
 		}
 
 		x := len(c)
@@ -155,58 +279,81 @@ func GetKline(symbol string, minute string) (bool, float64, float64, int, []floa
 
 		macd1 := 2 * (diff[x-1] - dea[x-1])
 		macd2 := 2 * (diff[x-2] - dea[x-2])
-		return choose_ma, macd1, macd2, x, c, o, h, diff, dea
+		macd3 := 2 * (diff[x-3] - dea[x-3])
+
+		vol1 := v[x-1]
+		vol2 := v[x-2]
+		return choose_ma, macd1, macd2, macd3, x, c, vol1, vol2
 	}
-	return false, 0, 0, 0, []float64{}, []float64{}, []float64{}, []float64{}, []float64{}
+	return false, 0, 0, 0, 0, []float64{}, 0, 0
 }
 func Getprice(symbol string, minute string) {
 
-	choose_ma, macd1, macd2, x, c, o, h, diff, dea := GetKline(symbol, minute)
+	_, macd1, macd2, macd3, x, c, vol1, vol2 := GetKline(symbol, minute)
 	if x < 500 {
 		return
 	}
-	//fmt.Println(symbol, minute, x)
-	//fmt.Println("symbol--->>>", symbol, "minute--->>>", minute, "choose_ma--->>>", choose_ma, "macd1--->>>", macd1, "macd2--->>>", macd2)
-	if c[x-1]/o[x-1] > 1.0035 && c[x-1]/o[x-1] < 1.035 && choose_ma &&
-		h[x-1]/c[x-1] < 1.005 && h[x-2]/c[x-2] < 1.005 && macd1 > 0 && macd1/macd2 > 1.01 && macd1/macd2 < 1.1 {
+
+	if vol1 > vol2 {
+		return
+
+	}
+
+	//布林曲线
+
+	upper, middle, _ := talib.BBands(c, 26, 2, 2, 0)
+
+	// Slope斜率
+	slope := talib.LinearRegSlope(talib.Sma(c, 5), 5)
+	cosa45 := slope[len(slope)-1]
+	backCosa45 := slope[len(slope)-2]
+	if cosa45 < 0 || backCosa45 < 0 {
+		return
+	}
+	//fmt.Println("symbol:--->>>", symbol, "----cosa45/backCosa45--->>>", cosa45/backCosa45, "----upper/middle--->>>", upper[x-1]/middle[x-1], minute)
+	if macd1 > 0 && macd1/macd2 > 1.03 && macd1/macd2 < 2 && macd2 > macd3 &&
+		cosa45/backCosa45 > 1.1 && cosa45/backCosa45 < 2 &&
+		upper[x-1]/middle[x-1] > 1.01 && upper[x-1]/middle[x-1] < 2 {
 		y := "\n----time--->>" + time.Now().Format("2006-1-2 15:04:02") +
 			",symbol----->>>" + symbol +
-			",----close1/open1--->>" + strconv.FormatFloat(c[x-1]/o[x-1], 'f', 5, 64) +
-			",----close2/open2--->>" + strconv.FormatFloat(c[x-2]/o[x-2], 'f', 5, 64) +
-			",----h[x-1]/c[x-1]--->>" + strconv.FormatFloat(h[x-1]/c[x-1], 'f', 5, 64) +
-			",----h[x-2]/c[x-2]--->>" + strconv.FormatFloat(h[x-2]/c[x-2], 'f', 5, 64) +
-			",----macd1--->>" + strconv.FormatFloat(macd1, 'f', 3, 64) +
+			",----cosa45/backCosa45--->>" + strconv.FormatFloat(cosa45/backCosa45, 'f', 5, 64) +
+			",----upper/middle--->>" + strconv.FormatFloat(upper[x-1]/middle[x-1], 'f', 5, 64) +
 			",----macd1/macd2--->>" + strconv.FormatFloat(macd1/macd2, 'f', 3, 64) +
-			",----diff--->>" + strconv.FormatFloat(diff[x-1], 'f', 3, 64) +
-			",----dea--->>" + strconv.FormatFloat(dea[x-1], 'f', 3, 64) +
+			",----vol1/vol2--->>" + strconv.FormatFloat(vol1/vol2, 'f', 3, 64) +
 			",----minute--->>" + minute
 		fmt.Println(y)
 
-		filePath := "..\\datas\\log\\buylog.txt"
-		file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_APPEND, 0666)
-		if err != nil {
-			panic(err)
-		}
-
-		//及时关闭file句柄
-		defer file.Close()
-		//写入文件时，使用带缓存的 *Writer
-		write := bufio.NewWriter(file)
-
-		write.WriteString("\n")
-		write.WriteString(y)
-
-		//Flush将缓存的文件真正写入到文件中
-		write.Flush()
-
-		fmt.Println("-------------------------------买入--------------------------------->>>")
-
-		cmd := exec.Command("python", "gorun.py", symbol, minute)
-		res, _ := cmd.Output()
-		fmt.Println(string(res))
 		//SendDingMsg(y)
 	}
 
+}
+
+func GetWriter(log string) {
+	filePath := "..\\datas\\log\\buylog.txt"
+	file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		panic(err)
+	}
+
+	//及时关闭file句柄
+	defer file.Close()
+	//写入文件时，使用带缓存的 *Writer
+	write := bufio.NewWriter(file)
+
+	write.WriteString("\n")
+	write.WriteString(log)
+
+	//Flush将缓存的文件真正写入到文件中
+	write.Flush()
+
+}
+
+func Buy(symbol string, minute string) {
+	fmt.Println("-------------------------------买入--------------------------------->>>")
+
+	cmd := exec.Command("python", "gorun.py", symbol, minute)
+	res, _ := cmd.Output()
+	fmt.Println(string(res))
 }
 
 func Getcashbal() {

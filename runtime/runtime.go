@@ -3,7 +3,8 @@ package runtime
 import (
 	"finally-main/mvc"
 	"fmt"
-	"regexp"
+	"strings"
+	"time"
 )
 
 func Run1() {
@@ -63,34 +64,23 @@ func Run(minute string) {
 			fmt.Println("Exception caught:", r)
 		}
 	}()
+	symbollist := mvc.Getsymbols()
+	for _, v := range symbollist {
+		symbol := strings.Replace(v.String(), "-USDT-SWAP", "", -1)
 
-	_, _, macdEth15m, _, _, _, _, _, _ := mvc.GetKline("ETH-USDT-SWAP", "15m")
-
-	if macdEth15m > 0 {
-		symbollist := mvc.Getsymbols()
-
-		for i := 0; i < len(symbollist); i++ {
-			symbol := symbollist[i].String()
-			re := regexp.MustCompile(`^(\w+)-`)
-			match := re.FindStringSubmatch(symbol)
-
-			if len(match) > 1 {
-				symbol = match[1] + "-USDT-SWAP"
-			} else {
-				fmt.Println("No match found")
-			}
-
-			choose := symbol != "USTC-USDT-SWAP" && symbol != "USDC-USDT-SWAP" &&
-				symbol != "BTC-USDT-SWAP" && symbol != "ETH-USDT-SWAP" && symbol != "ETC-USDT-SWAP" &&
-				symbol != "BCH-USDT-SWAP" && symbol != "DOGE-USDT-SWAP" && symbol != "SOL-USDT-SWAP" &&
-				symbol != "XRP-USDT-SWAP" && symbol != "AVAX-USDT-SWAP" && symbol != "BSV-USDT-SWAP" &&
-				symbol != "OP-USDT-SWAP" && symbol != "LTC-USDT-SWAP" && symbol != "ADA-USDT-SWAP" &&
-				symbol != "LINK-USDT-SWAP" && symbol != "TRX-USDT-SWAP" && symbol != "MKR-USDT-SWAP"
-
-			if choose {
-				mvc.Getprice(symbol, minute)
-			}
-
+		isbuy, buysale1, buysale2, buysale3, buysale1_2, buysale2_3 := mvc.GetIsBuy(symbol, minute)
+		if isbuy {
+			y := "\n----time--->>" + time.Now().Format("2006-1-2 15:04:02") +
+				",symbol----->>>" + symbol + "-USDT-SWAP" +
+				",----buysale1--->>" + buysale1 +
+				",----buysale2--->>" + buysale2 +
+				",----buysale3--->>" + buysale3 +
+				",----buysale1_2--->>" + buysale1_2 +
+				",----buysale2_3--->>" + buysale2_3 +
+				",----minute--->>" + minute
+			fmt.Println(y)
+			mvc.GetWriter(y)
+			mvc.Buy(symbol+"-USDT-SWAP", minute)
 		}
 	}
 

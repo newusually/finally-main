@@ -16,7 +16,6 @@ import requests as r
 import okx.Account_api as Account
 import okx.Market_api as Market
 import okx.Trade_api as Trade
-from dataprice import DataPrice as data
 from userinfo import User
 
 
@@ -203,26 +202,10 @@ class MVC:
 
                 if uplRatio < -0.3:
 
-                    # print(log)
-
-                    dw = data.new_symbol_isbuy("15m", symbol)
-
-                    # 首先确保整列可以转换为浮点数
-                    issus = False
-                    try:
-                        dw["close"] = dw["close"].astype(float)
-                        dw["vol"] = dw["vol"].astype(float)
-                        issus = True
-                    except ValueError:
-                        return False
-
-                    if issus and 'close' in dw.columns and not dw['close'].empty and pd.notnull(dw["close"]).all():
-
-                        if 1.0005 < float(dw["close"].values[-2]) / float(dw["open"].values[-2]) < 1.025:
-                            if -20 < uplRatio < -1.5:
-                                MVC.orderbuy(api_key, secret_key, passphrase, flag, symbol, "imr")
-                            else:
-                                MVC.orderbuy(api_key, secret_key, passphrase, flag, symbol, "low")
+                    if -20 < uplRatio < -1.5:
+                        MVC.orderbuy(api_key, secret_key, passphrase, flag, symbol, "imr")
+                    else:
+                        MVC.orderbuy(api_key, secret_key, passphrase, flag, symbol, "low")
 
                 if uplRatio > 0.5 or uplRatio < -20:
                     print("symbol--->>>", symbol, "未实现收益率--->>>", uplRatio)
@@ -344,7 +327,7 @@ class MVC:
               estMaxAmt_now, "estMaxAmt_now/estMaxAmt_example--->>>", float(estMaxAmt_now) / float(estMaxAmt_example),
               "minute--->>>", minute, "symbol--->>>", symbol)
 
-        if int(maxLever_now) < 20 or float(estMaxAmt_now) / float(estMaxAmt_example) < 0.1:
+        if int(maxLever_now) < 20 or float(estMaxAmt_now) / float(estMaxAmt_example) < 0.01:
             return False
         else:
 
