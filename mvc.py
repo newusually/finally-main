@@ -253,7 +253,7 @@ class MVC:
         result = accountAPI.get_account('USDT')['data'][0]["details"][0]
         swap = accountAPI.get_position_risk('SWAP')
         posData = 0 if not swap['data'][0]['posData'] else swap['data'][0]['posData']
-
+        posData_length = str(len(posData)) if isinstance(posData, list) else str(posData)
         # 检查每个值，如果为空或者为0，就打印0，否则打印实际的值
         disEq = 0 if not result["disEq"] else float(result["disEq"])
         upl = 0 if not result["upl"] else float(result["upl"])
@@ -262,7 +262,7 @@ class MVC:
         availBal = 0 if not result["availBal"] else float(result["availBal"])
         frozenBal = 0 if not result["frozenBal"] else float(result["frozenBal"])
 
-        log = ("\n合约订单数量----->>>" + str(len(posData)) + "个,  " +
+        log = ("\n合约订单数量----->>>" + str(posData_length) + "个,  " +
                "币种折算权益----->>>" + "{:.2f}".format(disEq) + "＄,  " +
                "\n实际未结算盈亏总额：--->>>" + "{:.2f}".format(upl) + "＄,  " +
                "USDT币种余额----->>>" + "{:.2f}".format(cashBal) + "＄," +
@@ -285,40 +285,47 @@ class MVC:
         # 查看账户余额  Get Balance
         result = accountAPI.get_account('USDT')['data'][0]["details"][0]
         swap = accountAPI.get_position_risk('SWAP')
-      
-        posData = 0 if not swap['data'][0]['posData'] else swap['data'][0]['posData']
 
+        posData = 0 if not swap['data'][0]['posData'] else swap['data'][0]['posData']
+        posData_length = str(len(posData)) if isinstance(posData, list) else str(posData)
         today = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+
+        # 检查每个值，如果为空或者为0，就打印0，否则打印实际的值
+        disEq = 0 if not result["disEq"] else float(result["disEq"])
+        upl = 0 if not result["upl"] else float(result["upl"])
+        cashBal = 0 if not result["cashBal"] else float(result["cashBal"])
+        mgnRatio = 0 if not result["mgnRatio"] else float(result["mgnRatio"])
+        frozenBal = 0 if not result["frozenBal"] else float(result["frozenBal"])
 
         # 美金层面币种折算权益
         with open("../datas/uplRatio/log/disEq_history.txt", 'a', encoding='utf-8') as file:
             # 将日志信息写入文件
-            file.write("\n" + today + "," + "{:.2f}".format(float(result["disEq"])))
+            file.write("\n" + today + "," + "{:.2f}".format(disEq))
 
         # 实际未结算盈亏总额
         with open("../datas/uplRatio/log/upl_history.txt", 'a', encoding='utf-8') as file:
             # 将日志信息写入文件
-            file.write("\n" + today + "," + "{:.2f}".format(float(result["upl"])))
+            file.write("\n" + today + "," + "{:.2f}".format(upl))
 
         # USDT币种余额
         with open("../datas/uplRatio/log/cashBal_history.txt", 'a', encoding='utf-8') as file:
             # 将日志信息写入文件
-            file.write("\n" + today + "," + "{:.2f}".format(float(result["cashBal"])))
+            file.write("\n" + today + "," + "{:.2f}".format(float(cashBal)))
 
         # 合约订单数量
         with open("../datas/uplRatio/log/posdatacount_history.txt", 'a', encoding='utf-8') as file:
             # 将日志信息写入文件
-            file.write("\n" + today + "," + str(len(posData)))
+            file.write("\n" + today + "," + str(posData_length))
 
         # USDT保证金金额
         with open("../datas/uplRatio/log/frozenBal_history.txt", 'a', encoding='utf-8') as file:
             # 将日志信息写入文件
-            file.write("\n" + today + "," + "{:.2f}".format(float(result["frozenBal"])))
+            file.write("\n" + today + "," + "{:.2f}".format(frozenBal))
 
         # USDT保证金率
         with open("../datas/uplRatio/log/mgnRatio_history.txt", 'a', encoding='utf-8') as file:
             # 将日志信息写入文件
-            file.write("\n" + today + "," + "{:.2f}".format(float(result["mgnRatio"]) * 100) + "%")
+            file.write("\n" + today + "," + "{:.2f}".format(mgnRatio * 100) + "%")
 
     def orderbuy(api_key, secret_key, passphrase, flag, symbol, minute):
         # account api
@@ -337,14 +344,16 @@ class MVC:
               estMaxAmt_now, "estMaxAmt_now/estMaxAmt_example--->>>", float(estMaxAmt_now) / float(estMaxAmt_example),
               "minute--->>>", minute, "symbol--->>>", symbol)
 
-        if int(maxLever_now) < 20 or float(estMaxAmt_now) / float(estMaxAmt_example) < 0.3:
+        if int(maxLever_now) < 20 or float(estMaxAmt_now) / float(estMaxAmt_example) < 0.1:
             return False
         else:
 
             swap = accountAPI.get_position_risk('SWAP')
-            posData = 0 if not swap['data'][0]['posData'] else swap['data'][0]['posData']
 
-            if len(posData) < 100 or minute == "low" or minute == "imr":
+            posData = 0 if not swap['data'][0]['posData'] else swap['data'][0]['posData']
+            posData_length = str(len(posData)) if isinstance(posData, list) else str(posData)
+
+            if float(posData_length) < 100 or minute == "low" or minute == "imr":
 
                 sr, dollar, dollar_eth = User.get_user_sr()
                 sr1 = str(sr)
