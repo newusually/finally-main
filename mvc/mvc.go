@@ -168,7 +168,7 @@ func Getprice(symbol string, minute string) {
 	//fmt.Println(symbol, minute, x)
 	//fmt.Println("symbol--->>>", symbol, "minute--->>>", minute, "choose_ma--->>>", choose_ma, "macd1--->>>", macd1, "macd2--->>>", macd2)
 	if c[x-1]/o[x-1] > 1.0035 && c[x-1]/o[x-1] < 1.035 && choose_ma &&
-		h[x-1]/c[x-1] < 1.01 && h[x-2]/c[x-2] < 1.01 {
+		h[x-1]/c[x-1] < 1.005 && h[x-2]/c[x-2] < 1.005 && macd1 > 0 && macd1/macd2 > 1.01 && macd1/macd2 < 1.1 {
 		y := "\n----time--->>" + time.Now().Format("2006-1-2 15:04:02") +
 			",symbol----->>>" + symbol +
 			",----close1/open1--->>" + strconv.FormatFloat(c[x-1]/o[x-1], 'f', 5, 64) +

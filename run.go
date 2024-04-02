@@ -25,19 +25,19 @@ func main() {
 	//crontab.AddFunc(spec1, runtime.Run1)
 
 	//定时任务3m
-	//spec3 := "30 2,5,8,11,14,17,20,23,26,29,32,35,38,41,44,47,50,53,56,59 * * * ?" //cron表达式，每4小时一次
+	spec3 := "30 2,5,8,11,14,17,20,23,26,29,32,35,38,41,44,47,50,53,56,59 * * * ?" //cron表达式，每4小时一次
 	// 添加定时任务,
-	//crontab.AddFunc(spec3, runtime.Run3)
+	crontab.AddFunc(spec3, runtime.Run3)
 
 	//定时任务5m
-	//spec5 := "30 4,9,14,19,24,29,34,39,44,49,54,59 * * * ?" //cron表达式，每4小时一次
+	spec5 := "30 4,9,14,19,24,29,34,39,44,49,54,59 * * * ?" //cron表达式，每4小时一次
 	// 添加定时任务,
-	//crontab.AddFunc(spec5, runtime.Run5)
+	crontab.AddFunc(spec5, runtime.Run5)
 
 	//定时任务15m
-	//spec15 := "30 14,28,43,58 * * * ?" //cron表达式，每4小时一次
+	spec15 := "30 14,28,43,58 * * * ?" //cron表达式，每4小时一次
 	// 添加定时任务,
-	//crontab.AddFunc(spec15, runtime.Run15)
+	crontab.AddFunc(spec15, runtime.Run15)
 
 	//定时任务15m Getcashhistory
 	cashhistoryspec15 := "30 15,30,45 * * * ?" //cron表达式，每15分钟一次

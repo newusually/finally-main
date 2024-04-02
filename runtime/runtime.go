@@ -64,10 +64,9 @@ func Run(minute string) {
 		}
 	}()
 
-	//_, _, macdEth15m, _, _, _, _, _, _ := mvc.GetKline("ETH-USDT-SWAP", "15m")
+	_, _, macdEth15m, _, _, _, _, _, _ := mvc.GetKline("ETH-USDT-SWAP", "15m")
 
-	//if macdEth15m > 0 {
-	if true {
+	if macdEth15m > 0 {
 		symbollist := mvc.Getsymbols()
 
 		for i := 0; i < len(symbollist); i++ {
