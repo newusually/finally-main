@@ -135,18 +135,18 @@ func GetIsBuy(symbol string, minute string) (bool, string, string, string, strin
 		buy[i] = g
 	}
 	x := len(day)
-	if x > 60 {
+	if x > 30 {
 		var sumBuy1, sumSale1 float64
 		var sumBuy2, sumSale2 float64
 		var sumBuy3, sumSale3 float64
-		for i := 0; i < 60; i++ {
-			sumBuy1 += buy[x-1-i]
-			sumSale1 += sale[x-1-i]
-			sumBuy2 += buy[x-2-i]
-			sumSale2 += sale[x-2-i]
-			sumBuy3 += buy[x-3-i]
-			sumSale3 += sale[x-3-i]
-		}
+
+		sumBuy1 = buy[x-1]
+		sumSale1 = sale[x-1]
+		sumBuy2 = buy[x-2]
+		sumSale2 = sale[x-2]
+		sumBuy3 = buy[x-3]
+		sumSale3 = sale[x-3]
+
 		buySaleStr1 := fmt.Sprintf("%.5f", sumBuy1/sumSale1)
 		buySale1, _ := strconv.ParseFloat(buySaleStr1, 64)
 
@@ -169,9 +169,7 @@ func GetIsBuy(symbol string, minute string) (bool, string, string, string, strin
 
 		// Check if t is between fifteenMinutesBefore and fifteenMinutesAfter
 		if ts.After(fifteenMinutesBefore) && ts.Before(fifteenMinutesAfter) {
-			if buySale1 > 1 && buySale1 < 1.1 && buySale2 > 1 && buySale2 < 1.1 && buySale3 > 1 &&
-				buySale1/buySale2 > 1 && buySale2/buySale3 > 1 &&
-				buySale1/buySale2 > buySale2/buySale3 {
+			if buySale1 > 0.5 && buySale1 < 0.7 && buySale1 > buySale2 && buySale2 > buySale3 {
 				return true, fmt.Sprintf("%.5f", buySale1), fmt.Sprintf("%.5f", buySale2), fmt.Sprintf("%.5f", buySale3), fmt.Sprintf("%.5f", buySale1/buySale2), fmt.Sprintf("%.5f", buySale2/buySale3)
 			} else {
 				return false, fmt.Sprintf("%.5f", buySale1), fmt.Sprintf("%.5f", buySale2), fmt.Sprintf("%.5f", buySale3), fmt.Sprintf("%.5f", buySale1/buySale2), fmt.Sprintf("%.5f", buySale2/buySale3)
