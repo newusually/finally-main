@@ -1,4 +1,4 @@
-package mvc
+package testmvc
 
 import (
 	"bufio"
@@ -65,7 +65,7 @@ func Getsymbols() []gjson.Result {
 	return instId
 }
 
-func GetIsBuy(symbol string, minute string) (bool, string, string, string, string, string) {
+func GetIsBuy(symbol string, minute string) {
 
 	time.Sleep(time.Millisecond * 10)
 
@@ -136,49 +136,49 @@ func GetIsBuy(symbol string, minute string) (bool, string, string, string, strin
 	}
 	x := len(day)
 	if x > 30 {
-		var sumBuy1, sumSale1 float64
-		var sumBuy2, sumSale2 float64
-		var sumBuy3, sumSale3 float64
+		for i := 3; i < x; i++ {
+			var sumBuy1, sumSale1 float64
+			var sumBuy2, sumSale2 float64
+			var sumBuy3, sumSale3 float64
 
-		sumBuy1 = buy[x-1]
-		sumSale1 = sale[x-1]
-		sumBuy2 = buy[x-2]
-		sumSale2 = sale[x-2]
-		sumBuy3 = buy[x-3]
-		sumSale3 = sale[x-3]
+			sumBuy1 = buy[i-1]
+			sumSale1 = sale[i-1]
+			sumBuy2 = buy[i-2]
+			sumSale2 = sale[i-2]
+			sumBuy3 = buy[i-3]
+			sumSale3 = sale[i-3]
 
-		buySaleStr1 := fmt.Sprintf("%.5f", sumBuy1/sumSale1)
-		buySale1, _ := strconv.ParseFloat(buySaleStr1, 64)
+			buySaleStr1 := fmt.Sprintf("%.5f", sumBuy1/sumSale1)
+			buySale1, _ := strconv.ParseFloat(buySaleStr1, 64)
 
-		buySaleStr2 := fmt.Sprintf("%.5f", sumBuy2/sumSale2)
-		buySale2, _ := strconv.ParseFloat(buySaleStr2, 64)
+			buySaleStr2 := fmt.Sprintf("%.5f", sumBuy2/sumSale2)
+			buySale2, _ := strconv.ParseFloat(buySaleStr2, 64)
 
-		buySaleStr3 := fmt.Sprintf("%.5f", sumBuy3/sumSale3)
-		buySale3, _ := strconv.ParseFloat(buySaleStr3, 64)
+			buySaleStr3 := fmt.Sprintf("%.5f", sumBuy3/sumSale3)
+			buySale3, _ := strconv.ParseFloat(buySaleStr3, 64)
 
-		// Parse the date string to time.Time
-		layout := "2006-01-02 15:04:05"
-		ts, _ := time.Parse(layout, day[x-1])
+			// Parse the date string to time.Time
+			layout := "2006-01-02 15:04:05"
+			ts, _ := time.Parse(layout, day[x-1])
 
-		// Get the current time
-		now := time.Now()
+			// Get the current time
+			now := time.Now()
 
-		// Calculate the time 15 minutes before and after the current time
-		fifteenMinutesBefore := now.Add(-(60) * time.Minute)
-		fifteenMinutesAfter := now.Add((8 * 60) * time.Minute)
+			// Calculate the time 15 minutes before and after the current time
+			fifteenMinutesBefore := now.Add(-(60) * time.Minute)
+			fifteenMinutesAfter := now.Add((8 * 60) * time.Minute)
 
-		// Check if t is between fifteenMinutesBefore and fifteenMinutesAfter
-		if ts.After(fifteenMinutesBefore) && ts.Before(fifteenMinutesAfter) {
-			if buySale1 > 0.5 && buySale1 < 1 && buySale1 > buySale2 && buySale1 > buySale3 && buySale1/buySale2 < 2 && buySale2/buySale3 < 2 && buySale1/buySale3 < 2 {
-				return true, fmt.Sprintf("%.5f", buySale1), fmt.Sprintf("%.5f", buySale2), fmt.Sprintf("%.5f", buySale3), fmt.Sprintf("%.5f", buySale1/buySale2), fmt.Sprintf("%.5f", buySale2/buySale3)
-			} else {
-				return false, fmt.Sprintf("%.5f", buySale1), fmt.Sprintf("%.5f", buySale2), fmt.Sprintf("%.5f", buySale3), fmt.Sprintf("%.5f", buySale1/buySale2), fmt.Sprintf("%.5f", buySale2/buySale3)
+			// Check if t is between fifteenMinutesBefore and fifteenMinutesAfter
+			if ts.After(fifteenMinutesBefore) && ts.Before(fifteenMinutesAfter) {
+
+				fmt.Println("date--->>>", day[i-1], "buySale1--->>>", buySale1, "buySale2--->>>", buySale2, "buySale3--->>>", buySale3,
+					"buySale1/buySale2--->>>", buySale1/buySale2, "buySale2/buySale3--->>>", buySale2/buySale3, "buySale1/buySale3--->>>", buySale1/buySale3)
+
 			}
 
 		}
 
 	}
-	return false, "0", "0", "0", "0", "0"
 }
 
 func GetKline(symbol string, minute string) (bool, float64, float64, float64, int, []float64, float64, float64) {
