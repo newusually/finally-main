@@ -70,14 +70,14 @@ func Run(minute string) {
 
 		isbuy, buysale1, buysale2, buysale3, buysale1_2, buysale2_3 := mvc.GetIsBuy(symbol, minute)
 		if isbuy {
-			y := "\n----time--->>" + time.Now().Format("2006-1-2 15:04:02") +
-				",symbol----->>>" + symbol + "-USDT-SWAP" +
-				",----buysale1--->>" + buysale1 +
-				",----buysale2--->>" + buysale2 +
-				",----buysale3--->>" + buysale3 +
-				",----buysale1_2--->>" + buysale1_2 +
-				",----buysale2_3--->>" + buysale2_3 +
-				",----minute--->>" + minute
+			y := "\ntime--->>" + time.Now().Format("2006-1-2 15:04:02") +
+				",symbol--->>" + symbol + "-USDT-SWAP" +
+				",-buysale1--->>" + buysale1 +
+				",buysale2--->>" + buysale2 +
+				",buysale3--->>" + buysale3 +
+				",buysale1_2--->>" + buysale1_2 +
+				",buysale2_3--->>" + buysale2_3 +
+				",minute--->>" + minute
 			fmt.Println(y)
 			mvc.GetWriter(y)
 			mvc.Buy(symbol+"-USDT-SWAP", minute)

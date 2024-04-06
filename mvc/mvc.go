@@ -169,7 +169,7 @@ func GetIsBuy(symbol string, minute string) (bool, string, string, string, strin
 
 		// Check if t is between fifteenMinutesBefore and fifteenMinutesAfter
 		if ts.After(fifteenMinutesBefore) && ts.Before(fifteenMinutesAfter) {
-			if buySale1 > 0.5 && buySale1 < 0.7 && buySale1 > buySale2 && buySale2 > buySale3 {
+			if buySale1 > 0.5 && buySale1 < 0.7 && buySale1 > buySale2 && buySale2 > buySale3 && buySale1/buySale2 < 1.3 && buySale2/buySale3 < 1.3 {
 				return true, fmt.Sprintf("%.5f", buySale1), fmt.Sprintf("%.5f", buySale2), fmt.Sprintf("%.5f", buySale3), fmt.Sprintf("%.5f", buySale1/buySale2), fmt.Sprintf("%.5f", buySale2/buySale3)
 			} else {
 				return false, fmt.Sprintf("%.5f", buySale1), fmt.Sprintf("%.5f", buySale2), fmt.Sprintf("%.5f", buySale3), fmt.Sprintf("%.5f", buySale1/buySale2), fmt.Sprintf("%.5f", buySale2/buySale3)
