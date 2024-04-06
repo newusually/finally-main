@@ -1,9 +1,9 @@
 package main
 
 import (
-	"finally-main/testmvc"
+	"finally-main/mvc"
 )
 
 func main() {
-	testmvc.GetIsBuy("SUSHI", "1H")
+	mvc.GetIsBuy("SUSHI", "1H")
 }
