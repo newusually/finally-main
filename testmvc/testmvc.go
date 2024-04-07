@@ -79,7 +79,7 @@ func GetIsBuy(symbol string, minute string) {
 			TLSNextProto: map[string]func(string, *tls.Conn) http.RoundTripper{},
 		},
 	}
-	req, err := http.NewRequest("GET", "https://www.okx.com/priapi/v5/rubik/stat/taker-volume?instType=CONTRACTS&period="+minute+"&ccy="+symbol+"&t="+strconv.Itoa(int(timeStamp)), nil)
+	req, err := http.NewRequest("GET", "https://www.okx.com/priapi/v5/rubik/stat/taker-volume?instType=CONTRACTS&period=1H&ccy="+symbol+"&t="+strconv.Itoa(int(timeStamp)), nil)
 	if err != nil {
 		panic(err)
 
@@ -135,18 +135,48 @@ func GetIsBuy(symbol string, minute string) {
 		buy[i] = g
 	}
 	x := len(day)
-	if x > 30 {
+	if x > 40 {
 		for i := 3; i < x; i++ {
 			var sumBuy1, sumSale1 float64
 			var sumBuy2, sumSale2 float64
 			var sumBuy3, sumSale3 float64
 
-			sumBuy1 = buy[i-1]
-			sumSale1 = sale[i-1]
-			sumBuy2 = buy[i-2]
-			sumSale2 = sale[i-2]
-			sumBuy3 = buy[i-3]
-			sumSale3 = sale[i-3]
+			if minute == "1H" {
+				sumBuy1 = buy[i-1]
+				sumSale1 = sale[i-1]
+				sumBuy2 = buy[i-2]
+				sumSale2 = sale[i-2]
+				sumBuy3 = buy[i-3]
+				sumSale3 = sale[i-3]
+			} else if minute == "2H" {
+				sumBuy1 = buy[i-1] + buy[i-2]
+				sumSale1 = sale[i-1] + sale[i-2]
+				sumBuy2 = buy[i-3] + buy[i-4]
+				sumSale2 = sale[i-3] + sale[i-4]
+				sumBuy3 = buy[i-5] + buy[i-6]
+				sumSale3 = sale[i-5] + sale[i-6]
+			} else if minute == "4H" {
+				sumBuy1 = buy[i-1] + buy[i-2] + buy[i-3] + buy[i-4]
+				sumSale1 = sale[i-1] + sale[i-2] + sale[i-3] + sale[i-4]
+				sumBuy2 = buy[i-5] + buy[i-6] + buy[i-7] + buy[i-8]
+				sumSale2 = sale[i-5] + sale[i-6] + sale[i-7] + sale[i-8]
+				sumBuy3 = buy[i-9] + buy[i-10] + buy[i-11] + buy[i-12]
+				sumSale3 = sale[i-9] + sale[i-10] + sale[i-11] + sale[i-12]
+			} else if minute == "6H" {
+				sumBuy1 = buy[i-1] + buy[i-2] + buy[i-3] + buy[i-4] + buy[i-5] + buy[i-6]
+				sumSale1 = sale[i-1] + sale[i-2] + sale[i-3] + sale[i-4] + sale[i-5] + sale[i-6]
+				sumBuy2 = buy[i-7] + buy[i-8] + buy[i-9] + buy[i-10] + buy[i-11] + buy[i-12]
+				sumSale2 = sale[i-7] + sale[i-8] + sale[i-9] + sale[i-10] + sale[i-11] + sale[i-12]
+				sumBuy3 = buy[i-13] + buy[i-14] + buy[i-15] + buy[x-16] + buy[x-17] + buy[x-18]
+				sumSale3 = sale[x-13] + sale[x-14] + sale[x-15] + sale[x-16] + sale[x-17] + sale[x-18]
+			} else if minute == "12H" {
+				sumBuy1 = buy[x-1] + buy[x-2] + buy[x-3] + buy[x-4] + buy[x-5] + buy[x-6] + buy[x-7] + buy[x-8] + buy[x-9] + buy[x-10] + buy[x-11] + buy[x-12]
+				sumSale1 = sale[x-1] + sale[x-2] + sale[x-3] + sale[x-4] + sale[x-5] + sale[x-6] + sale[x-7] + sale[x-8] + sale[x-9] + sale[x-10] + sale[x-11] + sale[x-12]
+				sumBuy2 = buy[x-13] + buy[x-14] + buy[x-15] + buy[x-16] + buy[x-17] + buy[x-18] + buy[x-19] + buy[x-20] + buy[x-21] + buy[x-22] + buy[x-23] + buy[x-24]
+				sumSale2 = sale[x-13] + sale[x-14] + sale[x-15] + sale[x-16] + sale[x-17] + sale[x-18] + sale[x-19] + sale[x-20] + sale[x-21] + sale[x-22] + sale[x-23] + sale[x-24]
+				sumBuy3 = buy[x-25] + buy[x-26] + buy[x-27] + buy[x-28] + buy[x-29] + buy[x-30] + buy[x-31] + buy[x-32] + buy[x-33] + buy[x-34] + buy[x-35] + buy[x-36]
+				sumSale3 = sale[x-25] + sale[x-26] + sale[x-27] + sale[x-28] + sale[x-29] + sale[x-30] + sale[x-31] + sale[x-32] + sale[x-33] + sale[x-34] + sale[x-35] + sale[x-36]
+			}
 
 			buySaleStr1 := fmt.Sprintf("%.5f", sumBuy1/sumSale1)
 			buySale1, _ := strconv.ParseFloat(buySaleStr1, 64)

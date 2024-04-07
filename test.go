@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	mvc.GetIsBuy("SUSHI", "1H")
+	mvc.GetIsBuy("ETH", "5m")
 }
