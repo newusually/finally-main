@@ -44,8 +44,8 @@ func main() {
 	// 添加定时任务,
 	crontab.AddFunc(cashhistoryspec15, mvc.Getcashhistory)
 
-	//定时任务15m GetuplRatio
-	specuplRatio := "30 0,15,30,45 * * * ?" //cron表达式，每4小时一次
+	//定时任务5m GetuplRatio
+	specuplRatio := "30 4,9,14,19,24,29,34,39,44,49,54,59 * * * ?" //cron表达式，每4小时一次
 	// 添加定时任
 	crontab.AddFunc(specuplRatio, mvc.GetuplRatio)
 
