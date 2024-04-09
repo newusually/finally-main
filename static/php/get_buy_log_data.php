@@ -2,15 +2,15 @@
 require_once '../php_class/DataFetcher.php';
 $pageSize = 30; // 每页显示的行数
 $filePath = 'e:/datas/log/buylog.txt';
-$dataFetcher3 = new DataFetcher($filePath);
+DataFetcher::init($filePath);
 
-$result = $dataFetcher3->getBuyLogData(1, $pageSize); // 先获取总页数
+$result = DataFetcher::getBuyLogData(1, $pageSize); // 先获取总页数
 $totalPages = $result['totalPages']; // 获取总页数
 
 $originalPage = isset($_GET['page']) && is_numeric($_GET['page']) && $_GET['page'] > 0 ? $_GET['page'] : 1; // 获取当前页码，如果没有或者不是一个大于0的整数则默认为第一页
 $page = $totalPages - $originalPage + 1; // 进行倒序处理
 
-$result = $dataFetcher3->getBuyLogData($page, $pageSize);
+$result = DataFetcher::getBuyLogData($page, $pageSize);
 $buy_log_data = $result['data'];
 $lines = $result['lines'];
 $totalLines = $result['totalLines']; // 获取总行数
@@ -26,6 +26,5 @@ $response = array(
 
 header('Content-Type: application/json;charset=utf-8');
 echo json_encode($response);
-
 
 ?>

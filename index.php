@@ -12,7 +12,7 @@
             setInterval(function () {
                 update();
                 fetchPage(1);
-            }, 60000); // 60000毫秒等于1分钟
+            }, 10000); // 60000毫秒等于1分钟
         }
     </script>
 

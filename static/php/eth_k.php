@@ -24,8 +24,8 @@
 
 <?php
 require_once '../php_class/DataFetcher.php';
-$dataFetcher = new DataFetcher('E:\datas\old_data\ETH-USDT-SWAP\ETH-USDT-SWAP-15min.csv');
-$data = $dataFetcher->getContractData();
+DataFetcher::init('E:\datas\old_data\ETH-USDT-SWAP\ETH-USDT-SWAP-15min.csv');
+$data = DataFetcher::getContractData();
 ?>
 <script type="text/javascript">
 

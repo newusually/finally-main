@@ -1,8 +1,8 @@
 <?php
 require_once '../php_class/DataFetcher.php';
-
-$dataFetcher2 = new DataFetcher('e:/datas/uplRatio/log/uplRatio.txt');
-$uplRatioData = $dataFetcher2->getUplRatioData();
+$filePath ='e:/datas/uplRatio/log/uplRatio.txt';
+DataFetcher::init($filePath);
+$uplRatioData = DataFetcher::getUplRatioData();
 
 // 检查$uplRatioData是否是数组或对象
 if (!is_array($uplRatioData) && !is_object($uplRatioData)) {

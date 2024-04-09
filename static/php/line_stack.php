@@ -12,7 +12,7 @@
             setInterval(function () {
 
                 location.reload();
-            }, 60000); // 60000毫秒等于1分钟
+            }, 10000); // 60000毫秒等于1分钟
         }
     </script>
 
@@ -24,21 +24,20 @@
 <?php
 require_once '../php_class/DataLineStack.php';
 
-$dataLineStack1 = new DataLineStack('E:\datas\uplRatio\log\cashBal_history.txt');
-$dataLineStack1->readFiles();
-$data1 = $dataLineStack1->getData();
+DataLineStack::init('E:\datas\uplRatio\log\cashBal_history.txt');
+DataLineStack::readFiles();
+$data1 = DataLineStack::getData();
 
 # 获取时间数据
-$date = $dataLineStack1->getDate();
-
+$date = DataLineStack::getDate();
 
 #实际未结算盈亏总额
-$dataLineStack2 = new DataLineStack('E:\datas\uplRatio\log\frozenBal_history.txt');
-$dataLineStack2->readFiles();
-$data2 = $dataLineStack2->getData();
+DataLineStack::init('E:\datas\uplRatio\log\frozenBal_history.txt');
+DataLineStack::readFiles();
+$data2 = DataLineStack::getData();
 
 # 获取时间数据
-$date = $dataLineStack1->getDate();
+$date = DataLineStack::getDate();
 #USDT币种余额
 $cashBal_history = $data1['cashBal_history'];
 

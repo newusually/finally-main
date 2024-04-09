@@ -1,26 +1,26 @@
 <?php
 class DataFetcher {
     #文件路径
-    private $filePath;
+    private static $filePath;
 
     #构造函数 传入文件路径
-    public function __construct($filePath) {
-        $this->filePath = $filePath;
+    public static function init($filePath) {
+        self::$filePath = $filePath;
     }
 
-    public function getFilePath() {
-        return $this->filePath;
+    public static function getFilePath() {
+        self::$filePath;
     }
 
     #获取盈亏列表
-    public function getCashbal() {
-        return file_get_contents($this->filePath);
+    public static function getCashbal() {
+        return file_get_contents(self::$filePath);
     }
 
 
     #获取实时亏损盈利记录 循环表格打印
-    public function getUplRatioData() {
-        $fileContent = file_get_contents($this->filePath);
+    public static function getUplRatioData() {
+        $fileContent = file_get_contents(self::$filePath);
         // 将文件内容转换为UTF-8编码
         $fileContent = mb_convert_encoding($fileContent, 'UTF-8');
         $lines = explode("\n", $fileContent);
@@ -57,8 +57,8 @@ class DataFetcher {
      */
 
 
-    public function getBuyLogData($page, $pageSize) {
-        $fileContent = file_get_contents($this->filePath);
+    public static function getBuyLogData($page, $pageSize) {
+        $fileContent = file_get_contents(self::$filePath);
         $lines = explode("\n", $fileContent); // 倒序读取
         $totalLines = count($lines); // 计算总行数
         $totalPages = ceil($totalLines / $pageSize); // 计算总页数
@@ -93,8 +93,8 @@ class DataFetcher {
      * 组，使用 str_getcsv() 函数将每一行的数据解析为 CSV 格式，
      * 然后将解析后的数据添加到 $data 数组中。最后，我们返回 $data 数组。
      */
-    public function getContractData() {
-        $lines = file($this->filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    public static function getContractData() {
+        $lines = file(self::$filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         $last50Lines = array_slice($lines, -50);
         $data = [];
         foreach ($last50Lines as $line) {

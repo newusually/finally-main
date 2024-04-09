@@ -200,14 +200,14 @@ class MVC:
                     # 将日志信息写入文件
                     file.write(log)
 
-                if uplRatio < -0.05:
+                if uplRatio < -0.2:
 
-                    if -10 < uplRatio < -3:
+                    if -3 < uplRatio < -0.7:
                         MVC.orderbuy(api_key, secret_key, passphrase, flag, symbol, "imr")
                     else:
                         MVC.orderbuy(api_key, secret_key, passphrase, flag, symbol, "low")
 
-                if uplRatio > 0.3 or uplRatio < -10:
+                if uplRatio > 0.2 or uplRatio < -5:
                     print("symbol--->>>", symbol, "未实现收益率--->>>", uplRatio)
                     tradeAPI = Trade.TradeAPI(api_key, secret_key, passphrase, False, flag)
 
@@ -327,7 +327,7 @@ class MVC:
               estMaxAmt_now, "estMaxAmt_now/estMaxAmt_example--->>>", float(estMaxAmt_now) / float(estMaxAmt_example),
               "minute--->>>", minute, "symbol--->>>", symbol)
 
-        if int(maxLever_now) < 20 or float(estMaxAmt_now) / float(estMaxAmt_example) < 0.01:
+        if int(maxLever_now) < 20 or float(estMaxAmt_now) / float(estMaxAmt_example) < 0.3:
             return False
         else:
 
