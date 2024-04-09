@@ -76,17 +76,14 @@
     <table class="colorful" id="buyLogTable">
         <thead>
         <tr>
-            <th>买入时间</th>
-            <th>买入的合约名称</th>
-            <th>当前收盘价/开盘价的比例</th>
-            <th>前一个交易时间段的收盘价/开盘价的比例</th>
-            <th>当前最高价/收盘价的比例</th>
-            <th>前一个交易时间段的最高价/收盘价的比例</th>
-            <th>当前的macd值</th>
-            <th>当前的macd值/前一个交易时间段的macd值的比例</th>
-            <th>diff值</th>
-            <th>dea值</th>
-            <th>买入交易的分钟数(5分钟,15分钟)</th>
+            <th>时间</th>
+            <th>合约名称</th>
+            <th>BuySale1</th>
+            <th>BuySale2</th>
+            <th>BuySale3</th>
+            <th>BuySale1_2</th>
+            <th>BuySale2_3</th>
+            <th>Minute</th>
         </tr>
         </thead>
         <tbody>
