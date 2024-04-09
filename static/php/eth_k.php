@@ -12,7 +12,7 @@
             setInterval(function () {
 
                 location.reload();
-            }, 60000 * 15); // 60000毫秒等于1分钟
+            }, 60000); // 60000毫秒等于1分钟
         }
     </script>
     <title>eth图表</title>

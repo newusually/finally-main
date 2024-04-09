@@ -164,7 +164,7 @@ func GetIsBuy(symbol string, minute string) (bool, string, string, string, strin
 		now := time.Now()
 
 		// Calculate the time 15 minutes before and after the current time
-		fifteenMinutesBefore := now.Add(-(60) * time.Minute)
+		fifteenMinutesBefore := now.Add(-(15) * time.Minute)
 		fifteenMinutesAfter := now.Add((8 * 60) * time.Minute)
 		//fmt.Println(day[x-1], buySale1, buySale2, buySale3, buySale1/buySale2, buySale2/buySale3)
 		// Check if t is between fifteenMinutesBefore and fifteenMinutesAfter

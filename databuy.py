@@ -21,6 +21,40 @@ pd.set_option('mode.chained_assignment', None)
 
 class Databuy:
 
+    def getethinfo(self, minute):
+
+
+            symbol="ETH-USDT-SWAP"
+            if (not os.path.exists(f'../datas/new_data/' + symbol)):
+                try:
+                    os.makedirs((f'../datas/new_data/' + symbol), exist_ok=True)
+                except:
+                    pass
+            else:
+                files = f'../datas/old_data/' + symbol + '/' + symbol + '-' + str(minute) + 'min.csv'
+
+                if not os.path.exists(files):
+                    try:
+                        os.makedirs((f'../datas/old_data/' + symbol), exist_ok=True)
+                        data.new_symbol_isbuy(minute, symbol)
+                    except:
+                        pass
+                else:
+                    # 使用二进制模式打开文件，并指定忽略编码错误
+                    with open(files, 'rb') as f:
+                        content_bytes = f.read()
+
+                    # 尝试解码内容，忽略错误
+                    content_decoded = content_bytes.decode('utf-8', errors='replace')
+                    if len(content_decoded) < 500:
+                        try:
+                            data.new_symbol_isbuy(minute, symbol)
+                        except:
+                            pass
+                    else:
+                        data.eth_isbuy(minute, symbol)
+                        # self.getnext_onedata(symbol, minute)
+
     def getbuyinfo(self, symbollist, minute):
 
         for symbol in symbollist:

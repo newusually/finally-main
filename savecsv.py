@@ -19,23 +19,4 @@ if __name__ == '__main__':
 
     data = Databuy()
 
-    symbollist = MVC.getsymbollist()
-
-    if len(symbollist) < 10:
-        SendDingding.sender("symbol null!!!--->>>" + "，\n我们是守护者，也是一群时刻对抗危险和疯狂的可怜虫！！！")
-    else:
-
-        p1 = multiprocessing.Process(target=data.getbuyinfo, args=[symbollist[:50], minute])
-        p2 = multiprocessing.Process(target=data.getbuyinfo, args=[symbollist[50:100], minute])
-        p3 = multiprocessing.Process(target=data.getbuyinfo, args=[symbollist[100:150], minute])
-        p4 = multiprocessing.Process(target=data.getbuyinfo, args=[symbollist[150:], minute])
-
-        p1.start()
-        p2.start()
-        p3.start()
-        p4.start()
-
-        p1.join()
-        p2.join()
-        p3.join()
-        p4.join()
+    data.getethinfo(minute)

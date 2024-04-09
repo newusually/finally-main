@@ -29,6 +29,11 @@ func main() {
 	// 添加定时任务,
 	//crontab.AddFunc(spec3, runtime.Run3)
 
+	//定时任务1m savecsv
+	savecsv := "55 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59 * * * ?" //cron表达式，每4小时一次
+	// 添加定时任务,
+	crontab.AddFunc(savecsv, runtime.Savecsvfinal)
+
 	//定时任务5m
 	spec5 := "30 4,9,14,19,24,29,34,39,44,49,54,59 * * * ?" //cron表达式，每4小时一次
 	// 添加定时任务,
@@ -45,19 +50,14 @@ func main() {
 	crontab.AddFunc(cashhistoryspec15, mvc.Getcashhistory)
 
 	//定时任务5m GetuplRatio
-	specuplRatio := "30 4,9,14,19,24,29,34,39,44,49,54,59 * * * ?" //cron表达式，每4小时一次
+	specuplRatio := "0 4,9,14,19,24,29,34,39,44,49,54,59 * * * ?" //cron表达式，每4小时一次
 	// 添加定时任
 	crontab.AddFunc(specuplRatio, mvc.GetuplRatio)
 
-	//定时任务15m
-	//savecsv15 := "55 0,15,30,45 * * * ?" //cron表达式，每15分钟一次
-	// 添加定时任务,
-	//crontab.AddFunc(savecsv15, runtime.Savecsvfinal)
-
 	//定时任务1H
-	spec1H := "55 5 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23 * * ?" //cron表达式，每1小时一次
+	//spec1H := "55 5 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23 * * ?" //cron表达式，每1小时一次
 	// 添加定时任务,
-	crontab.AddFunc(spec1H, runtime.Run1H)
+	//crontab.AddFunc(spec1H, runtime.Run1H)
 
 	//定时任务2H
 	//spec2H := "55 55 0,2,4,6,8,10,12,14,16,18,20,22 * * ?" //cron表达式，每2小时一次
