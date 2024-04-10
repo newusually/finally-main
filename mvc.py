@@ -200,14 +200,14 @@ class MVC:
                     # 将日志信息写入文件
                     file.write(log)
 
-                if uplRatio < -0.2:
+                if uplRatio < -1:
 
-                    if -3 < uplRatio < -0.7:
+                    if -3 < uplRatio < -1.5:
                         MVC.orderbuy(api_key, secret_key, passphrase, flag, symbol, "imr")
                     else:
                         MVC.orderbuy(api_key, secret_key, passphrase, flag, symbol, "low")
 
-                if uplRatio > 0.2 or uplRatio < -5:
+                if uplRatio > 0.15 or uplRatio < -5:
                     print("symbol--->>>", symbol, "未实现收益率--->>>", uplRatio)
                     tradeAPI = Trade.TradeAPI(api_key, secret_key, passphrase, False, flag)
 
@@ -319,6 +319,7 @@ class MVC:
         result_example = accountAPI.get_adjust_leverage_info('SWAP', 'cross', 50, 'SUSHI-USDT-SWAP')
         result_now = accountAPI.get_adjust_leverage_info('SWAP', 'cross', 50, symbol)
         # 最大倍数要求大于等于20
+
         maxLever_now = result_now['data'][0]['maxLever']
         # 大于此保证金张数的70%才可以买入
         estMaxAmt_example = result_example['data'][0]['estMaxAmt']
@@ -327,7 +328,7 @@ class MVC:
               estMaxAmt_now, "estMaxAmt_now/estMaxAmt_example--->>>", float(estMaxAmt_now) / float(estMaxAmt_example),
               "minute--->>>", minute, "symbol--->>>", symbol)
 
-        if int(maxLever_now) < 20 or float(estMaxAmt_now) / float(estMaxAmt_example) < 0.3:
+        if int(maxLever_now) < 20 or (float(estMaxAmt_now) / float(estMaxAmt_example) < 0.3 and minute != "imr" or minute != "low") :
             return False
         else:
 
