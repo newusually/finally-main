@@ -289,11 +289,6 @@ func Getprice(symbol string, minute string) (string, string, string, string, str
 		return "", "", "", "", "", "", "", ""
 	}
 
-	if vol1 > vol2 {
-		return "", "", "", "", "", "", "", ""
-
-	}
-
 	if diff[x-1] < dea[x-1] {
 		return "", "", "", "", "", "", "", ""
 	}
@@ -305,11 +300,12 @@ func Getprice(symbol string, minute string) (string, string, string, string, str
 	cosa60 := slope60[len(slope60)-1]
 	macd1 := 2 * (diff[x-1] - dea[x-1])
 	macd2 := 2 * (diff[x-2] - dea[x-2])
+
 	if cosa5 < 0 || cosa60 < 0 {
 		return "", "", "", "", "", "", "", ""
 	}
 	//fmt.Println("symbol:--->>>", symbol, "----cosa5/cosa60--->>>", cosa5/cosa60, "----macd1/macd2--->>>", macd1/macd2, "----vol1/vol2--->>>", vol1/vol2, "----minute--->>>", minute)
-	if macd1 > 0 && macd1/macd2 > 1 && macd1/macd2 < 2 && cosa5/cosa60 > 20 && cosa5/cosa60 < 200 {
+	if cosa5/cosa60 > 20 && cosa5/cosa60 < 30 {
 		return fmt.Sprintf("%.5f", macd1), fmt.Sprintf("%.5f", macd2), fmt.Sprintf("%.5f", macd1/macd2), fmt.Sprintf("%.5f", cosa5), fmt.Sprintf("%.5f", cosa60), fmt.Sprintf("%.5f", cosa5/cosa60), fmt.Sprintf("%.5f", vol1), fmt.Sprintf("%.5f", vol2)
 	} else {
 		return "", "", "", "", "", "", "", ""
