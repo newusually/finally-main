@@ -1,9 +1,9 @@
 package main
 
 import (
-	"finally-main/mvc"
+	"finally-main/runtime"
 )
 
 func main() {
-	mvc.GetIsBuy("ETH", "5m")
+	runtime.Run("1m")
 }

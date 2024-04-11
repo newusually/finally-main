@@ -328,7 +328,7 @@ class MVC:
               estMaxAmt_now, "estMaxAmt_now/estMaxAmt_example--->>>", float(estMaxAmt_now) / float(estMaxAmt_example),
               "minute--->>>", minute, "symbol--->>>", symbol)
 
-        if int(maxLever_now) < 20 or (float(estMaxAmt_now) / float(estMaxAmt_example) < 0.3 and minute != "imr" or minute != "low") :
+        if int(maxLever_now) < 20 or float(estMaxAmt_now) / float(estMaxAmt_example) < 0.3:
             return False
         else:
 
@@ -336,6 +336,7 @@ class MVC:
 
             posData = 0 if not swap['data'][0]['posData'] else swap['data'][0]['posData']
             posData_length = str(len(posData)) if isinstance(posData, list) else str(posData)
+            print("posData_length--->>>", posData_length, posData)
 
             if float(posData_length) < 100 or minute == "low" or minute == "imr":
 

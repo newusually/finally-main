@@ -21,6 +21,9 @@ function updatetable() {
                   <td>${item.column6}</td>
                   <td>${item.column7}</td>
                   <td>${item.column8}</td>
+                  <td>${item.column9}</td>
+                  <td>${item.column10}</td>
+                  <td>${item.column11}</td>
                 </tr>`;
             });
             document.getElementById('buyLogTable').tBodies.item(0).innerHTML = rows;

@@ -78,11 +78,14 @@
         <tr>
             <th>时间</th>
             <th>合约名称</th>
-            <th>BuySale1</th>
-            <th>BuySale2</th>
-            <th>BuySale3</th>
-            <th>BuySale1_2</th>
-            <th>BuySale2_3</th>
+            <th>macd1</th>
+            <th>macd2</th>
+            <th>macd1_macd2</th>
+            <th>cosa5</th>
+            <th>cosa60</th>
+            <th>cosa5_cosa60</th>
+            <th>vol1</th>
+            <th>vol2</th>
             <th>Minute</th>
         </tr>
         </thead>

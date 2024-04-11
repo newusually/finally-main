@@ -183,7 +183,7 @@ func GetIsBuy(symbol string, minute string) (bool, string, string, string, strin
 	return false, "0", "0", "0", "0", "0"
 }
 
-func GetKline(symbol string, minute string) (bool, float64, float64, float64, int, []float64, float64, float64) {
+func GetKline(symbol string, minute string) (int, float64, float64, []float64, []float64) {
 
 	//fmt.Println(symboldemo, symbol)
 	time.Sleep(time.Millisecond * 10)
@@ -237,7 +237,7 @@ func GetKline(symbol string, minute string) (bool, float64, float64, float64, in
 	vols := gjson.Get(src, "data.#.6").Array()
 
 	if len(closes) < 500 || closes[10].Float() < 0.0001 {
-		return false, 0, 0, 0, 0, []float64{}, 0, 0
+		return 0, 0, 0, []float64{}, []float64{}
 	}
 
 	if len(closes) > 500 && closes[10].Float() > 0.0001 {
@@ -275,55 +275,45 @@ func GetKline(symbol string, minute string) (bool, float64, float64, float64, in
 		x := len(c)
 
 		diff, dea, _ := talib.Macd(c, 12, 26, 60)
-		choose_ma := c[x-1] > talib.Sma(c, 5)[x-1]
-
-		macd1 := 2 * (diff[x-1] - dea[x-1])
-		macd2 := 2 * (diff[x-2] - dea[x-2])
-		macd3 := 2 * (diff[x-3] - dea[x-3])
 
 		vol1 := v[x-1]
 		vol2 := v[x-2]
-		return choose_ma, macd1, macd2, macd3, x, c, vol1, vol2
+		return x, vol1, vol2, diff, dea
 	}
-	return false, 0, 0, 0, 0, []float64{}, 0, 0
+	return 0, 0, 0, []float64{}, []float64{}
 }
-func Getprice(symbol string, minute string) {
+func Getprice(symbol string, minute string) (string, string, string, string, string, string, string, string) {
 
-	_, macd1, macd2, macd3, x, c, vol1, vol2 := GetKline(symbol, minute)
+	x, vol1, vol2, diff, dea := GetKline(symbol, minute)
 	if x < 500 {
-		return
+		return "", "", "", "", "", "", "", ""
 	}
 
 	if vol1 > vol2 {
-		return
+		return "", "", "", "", "", "", "", ""
 
 	}
 
-	//布林曲线
-
-	upper, middle, _ := talib.BBands(c, 26, 2, 2, 0)
-
-	// Slope斜率
-	slope := talib.LinearRegSlope(talib.Sma(c, 5), 5)
-	cosa45 := slope[len(slope)-1]
-	backCosa45 := slope[len(slope)-2]
-	if cosa45 < 0 || backCosa45 < 0 {
-		return
+	if diff[x-1] < dea[x-1] {
+		return "", "", "", "", "", "", "", ""
 	}
-	//fmt.Println("symbol:--->>>", symbol, "----cosa45/backCosa45--->>>", cosa45/backCosa45, "----upper/middle--->>>", upper[x-1]/middle[x-1], minute)
-	if macd1 > 0 && macd1/macd2 > 1.03 && macd1/macd2 < 2 && macd2 > macd3 &&
-		cosa45/backCosa45 > 1.1 && cosa45/backCosa45 < 2 &&
-		upper[x-1]/middle[x-1] > 1.01 && upper[x-1]/middle[x-1] < 2 {
-		y := "\n----time--->>" + time.Now().Format("2006-1-2 15:04:02") +
-			",symbol----->>>" + symbol +
-			",----cosa45/backCosa45--->>" + strconv.FormatFloat(cosa45/backCosa45, 'f', 5, 64) +
-			",----upper/middle--->>" + strconv.FormatFloat(upper[x-1]/middle[x-1], 'f', 5, 64) +
-			",----macd1/macd2--->>" + strconv.FormatFloat(macd1/macd2, 'f', 3, 64) +
-			",----vol1/vol2--->>" + strconv.FormatFloat(vol1/vol2, 'f', 3, 64) +
-			",----minute--->>" + minute
-		fmt.Println(y)
 
-		//SendDingMsg(y)
+	// Slope斜率dea
+	slope5 := talib.LinearRegSlope(dea, 5)
+	slope60 := talib.LinearRegSlope(dea, 60)
+	cosa5 := slope5[len(slope5)-1]
+	cosa60 := slope60[len(slope60)-1]
+	macd1 := 2 * (diff[x-1] - dea[x-1])
+	macd2 := 2 * (diff[x-2] - dea[x-2])
+	if cosa5 < 0 || cosa60 < 0 {
+		return "", "", "", "", "", "", "", ""
+	}
+	//fmt.Println("symbol:--->>>", symbol, "----cosa5/cosa60--->>>", cosa5/cosa60, "----macd1/macd2--->>>", macd1/macd2, "----vol1/vol2--->>>", vol1/vol2, "----minute--->>>", minute)
+	if macd1 > 0 && macd1/macd2 > 1 && macd1/macd2 < 2 && cosa5/cosa60 > 20 && cosa5/cosa60 < 200 {
+		return fmt.Sprintf("%.5f", macd1), fmt.Sprintf("%.5f", macd2), fmt.Sprintf("%.5f", macd1/macd2), fmt.Sprintf("%.5f", cosa5), fmt.Sprintf("%.5f", cosa60), fmt.Sprintf("%.5f", cosa5/cosa60), fmt.Sprintf("%.5f", vol1), fmt.Sprintf("%.5f", vol2)
+	} else {
+		return "", "", "", "", "", "", "", ""
+
 	}
 
 }
