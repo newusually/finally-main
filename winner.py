@@ -21,14 +21,17 @@ class Datainfo:
             p1 = multiprocessing.Process(target=sch.okx3M_buy)
             p2 = multiprocessing.Process(target=sch.okx5M_buy)
             p3 = multiprocessing.Process(target=sch.okxbuy)
+            p4 = multiprocessing.Process(target=sch.okx15M_buy)
 
             p1.start()
             p2.start()
             p3.start()
+            p4.start()
 
             p1.join()
             p2.join()
             p3.join()
+            p4.join()
 
     class windowsshow():
 
@@ -66,7 +69,7 @@ class Datainfo:
                 scheduler.shutdown()
 
         def okx3M_buy(self):
-            # self.getdatainfo('3m')
+            self.getdatainfo('3m')
 
             scheduler = BlockingScheduler()
             scheduler.add_job(self.getdatainfo, 'cron', args=['3m'], minute='*/3')
@@ -88,7 +91,7 @@ class Datainfo:
                 scheduler.shutdown()
 
         def okx15M_buy(self):
-            # self.getdatainfo('15m')
+            self.getdatainfo('15m')
 
             scheduler = BlockingScheduler()
             scheduler.add_job(self.getdatainfo, 'cron', args=['15m'], minute='*/15')

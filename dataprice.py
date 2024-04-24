@@ -113,7 +113,8 @@ class DataPrice:
                     minute = '5'
                 if (minute == '15m'):
                     minute = '15'
-
+                df.to_csv(
+                    f'../datas/new_data/' + symbol + '/' + symbol + '-' + str(minute) + 'min.csv', index=False)
                 return df
 
             except:

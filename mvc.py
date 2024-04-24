@@ -97,22 +97,6 @@ class MVC:
             symbollist.append(symbol)
         return list(set(symbollist))
 
-    # 保存信息
-    def saveinfo(info):
-
-        f_info = f'../datas/log/infodata.txt'
-
-        with open(f_info, "a+", encoding='utf-8') as file:  # a :   写入文件，若文件不存在则会先创建再写入，但不会覆盖原文件，而是追加在文件末尾
-            file.write('\n' + str(info) + str(datetime.now()))
-
-    # 保存最终信息
-    def save_finalinfo(info):
-
-        f_day = f'../datas/log/day_buy.txt'
-
-        with open(f_day, "a+", encoding='utf-8') as file:  # a :   写入文件，若文件不存在则会先创建再写入，但不会覆盖原文件，而是追加在文件末尾
-            file.write('\n' + str(info) + '--->>>' + str(datetime.now()))
-
     # 查询最新价格
     def getlastprice(api_key, secret_key, passphrase, flag, symbol):
 
@@ -160,59 +144,64 @@ class MVC:
             # print(datas)
             # 使用循环遍历 posData 列表中的每个元素
             for item in datas:
-                time.sleep(1)
-                # 打印每个 instId
-                symbol = item['instId']
-                # 将 instId 添加到 symbollist 列表中
+                try:
+                    time.sleep(1)
+                    # 打印每个 instId
+                    symbol = item['instId']
+                    # 将 instId 添加到 symbollist 列表中
 
-                # 查看持仓信息  Get Positions
-                result = accountAPI.get_positions('SWAP', symbol)
-                # print(result)
-                # print(result['data'][0])
+                    # 查看持仓信息  Get Positions
+                    result = accountAPI.get_positions('SWAP', symbol)
+                    # print(result)
+                    # print(result['data'][0])
 
-                # 未实现收益率
-                uplRatio = float(result['data'][0]['uplRatio'])
+                    # 未实现收益率
+                    uplRatio = float(result['data'][0]['uplRatio'])
 
-                notionalUsd = float(result['data'][0]['notionalUsd'])
-                # 保证金
-                imr = float(result['data'][0]['imr'])
-                # 量
-                pos = float(result['data'][0]['pos'])
-                # 单个量 保证金值
-                onlyimr = imr / pos
-                # 查看持仓信息  Get Positions
-                result = accountAPI.get_positions('SWAP', symbol)
-                # 开仓均价
-                avgPx = float(result['data'][0]['avgPx'])
-                # 现价
-                last = float(result['data'][0]['last'])
-                # 杠杆倍数
-                lever = float(result['data'][0]['lever'])
+                    if uplRatio < -0.3:
 
-                log = ("\nsymbol--->>>" + symbol + ",未实现收益率--->>>" + "{:.5f}".format(uplRatio * 100) + "%" +
-                       ",现价--->>>" + "{:.5f}".format(last) + ",开仓均价--->>>" + "{:.5f}".format(
-                            avgPx) + ",保证金--->>>" + "{:.5f}".format(imr) + ",杠杆倍数--->>>" + str(
-                            lever) + ",总计亏损金额--->>>" + "{:.5f}".format(
-                            imr * uplRatio))
+                        if -3 < uplRatio < -1.5:
+                            MVC.orderbuy(api_key, secret_key, passphrase, flag, symbol, "imr")
+                        else:
+                            MVC.orderbuy(api_key, secret_key, passphrase, flag, symbol, "low")
 
-                # 现在路径存在，打开文件并在尾部追加内容，指定编码为UTF-8
-                with open(file_path, 'a', encoding='utf-8') as file:
-                    # 将日志信息写入文件
-                    file.write(log)
+                    if uplRatio > 0.15 or uplRatio < -5:
+                        print("symbol--->>>", symbol, "未实现收益率--->>>", uplRatio)
+                        tradeAPI = Trade.TradeAPI(api_key, secret_key, passphrase, False, flag)
 
-                if uplRatio < -1:
+                        # 市价仓位全平  Close Positions
+                        result = tradeAPI.close_positions(symbol, 'cross', 'long', '')
 
-                    if -3 < uplRatio < -1.5:
-                        MVC.orderbuy(api_key, secret_key, passphrase, flag, symbol, "imr")
-                    else:
-                        MVC.orderbuy(api_key, secret_key, passphrase, flag, symbol, "low")
+                    notionalUsd = float(result['data'][0]['notionalUsd'])
+                    # 保证金
+                    imr = float(result['data'][0]['imr'])
+                    # 量
+                    pos = float(result['data'][0]['pos'])
+                    # 单个量 保证金值
+                    onlyimr = imr / pos
+                    # 查看持仓信息  Get Positions
+                    result = accountAPI.get_positions('SWAP', symbol)
+                    # 开仓均价
+                    avgPx = float(result['data'][0]['avgPx'])
+                    # 现价
+                    last = float(result['data'][0]['last'])
+                    # 杠杆倍数
+                    lever = float(result['data'][0]['lever'])
 
-                if uplRatio > 0.15 or uplRatio < -5:
-                    print("symbol--->>>", symbol, "未实现收益率--->>>", uplRatio)
-                    tradeAPI = Trade.TradeAPI(api_key, secret_key, passphrase, False, flag)
+                    log = ("\nsymbol--->>>" + symbol + ",未实现收益率--->>>" + "{:.5f}".format(uplRatio * 100) + "%" +
+                           ",现价--->>>" + "{:.5f}".format(last) + ",开仓均价--->>>" + "{:.5f}".format(
+                                avgPx) + ",保证金--->>>" + "{:.5f}".format(imr) + ",杠杆倍数--->>>" + str(
+                                lever) + ",总计亏损金额--->>>" + "{:.5f}".format(
+                                imr * uplRatio))
 
-                    # 市价仓位全平  Close Positions
-                    result = tradeAPI.close_positions(symbol, 'cross', 'long', '')
+                    # 现在路径存在，打开文件并在尾部追加内容，指定编码为UTF-8
+                    with open(file_path, 'a', encoding='utf-8') as file:
+                        # 将日志信息写入文件
+                        file.write(log)
+
+
+                except:
+                    pass
 
     # 获取实时账户资金信息 每分钟查询一次
     def getcashbal(api_key, secret_key, passphrase, flag):
@@ -328,7 +317,7 @@ class MVC:
               estMaxAmt_now, "estMaxAmt_now/estMaxAmt_example--->>>", float(estMaxAmt_now) / float(estMaxAmt_example),
               "minute--->>>", minute, "symbol--->>>", symbol)
 
-        if int(maxLever_now) < 20 or float(estMaxAmt_now) / float(estMaxAmt_example) < 0.05:
+        if int(maxLever_now) < 20 or float(estMaxAmt_now) / float(estMaxAmt_example) < 0.03:
             return False
         else:
 
@@ -336,7 +325,7 @@ class MVC:
 
             posData = 0 if not swap['data'][0]['posData'] else swap['data'][0]['posData']
             posData_length = str(len(posData)) if isinstance(posData, list) else str(posData)
-            print("posData_length--->>>", posData_length, posData)
+            # print("posData_length--->>>", posData_length, posData)
 
             if float(posData_length) < 100 or minute == "low" or minute == "imr":
 
