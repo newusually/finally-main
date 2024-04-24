@@ -4,7 +4,6 @@ import (
 	"finally-main/mvc"
 	"fmt"
 	"regexp"
-	"time"
 )
 
 func Run1() {
@@ -65,30 +64,19 @@ func Run(minute string) {
 		}
 	}()
 	symbollist := mvc.Getsymbols()
+	//fmt.Println(symbollist)
 
 	uniqueSymbols := make(map[string]bool)
-	re := regexp.MustCompile(`-(USDT|USDC|USD)-SWAP$`)
+	re := regexp.MustCompile(`-(USDT)-SWAP$`)
 
 	for _, v := range symbollist {
 		symbol := re.ReplaceAllString(v.String(), "")
 
 		if _, exists := uniqueSymbols[symbol]; !exists {
 			uniqueSymbols[symbol] = true
-			macd1, macd2, macd1_macd2, cosa5, cosa60, cosa5_cosa60, vol1, vol2 := mvc.Getprice(symbol+"-USDT-SWAP", minute)
-			if len(macd1) > 2 {
-				y := "\ntime--->>" + time.Now().Format("2006-1-2 15:04:02") +
-					",symbol--->>" + symbol + "-USDT-SWAP" +
-					",macd1--->>" + macd1 +
-					",macd2--->>" + macd2 +
-					",macd1_macd2--->>" + macd1_macd2 +
-					",cosa5--->>" + cosa5 +
-					",cosa60--->>" + cosa60 +
-					",cosa5_cosa60--->>" + cosa5_cosa60 +
-					",vol1--->>" + vol1 +
-					",vol2--->>" + vol2 +
-					",minute--->>" + minute
-				fmt.Println(y)
-				mvc.GetWriter(y)
+
+			isbuy := mvc.GetIsBuy(symbol+"-USDT-SWAP", minute)
+			if isbuy {
 				mvc.Buy(symbol+"-USDT-SWAP", minute)
 			}
 
