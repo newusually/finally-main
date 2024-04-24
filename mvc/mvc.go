@@ -65,125 +65,41 @@ func Getsymbols() []gjson.Result {
 	return instId
 }
 
-func GetIsBuy(symbol string, minute string) (bool, string, string, string, string, string) {
+func GetIsBuy(symbol string, minute string) bool {
 
 	time.Sleep(time.Millisecond * 10)
+	x, close, vol1, vol2, diff, dea := GetKline(symbol, minute)
 
-	// 获取当前时间 或者使用 time.Date(year, month, ...)
-	t := time.Now()
-	timeStamp := t.Unix()
-	client := &http.Client{
+	if x < 500 {
+		return false
+	} else {
 
-		Transport: &http.Transport{
+		macd1 := 2 * (diff[x-1] - dea[x-1]) * (10000 / close)
+		macd2 := 2 * (diff[x-2] - dea[x-2]) * (10000 / close)
 
-			TLSNextProto: map[string]func(string, *tls.Conn) http.RoundTripper{},
-		},
-	}
-	req, err := http.NewRequest("GET", "https://www.okx.com/priapi/v5/rubik/stat/taker-volume?instType=CONTRACTS&period="+minute+"&ccy="+symbol+"&t="+strconv.Itoa(int(timeStamp)), nil)
-	if err != nil {
-		panic(err)
-
-	}
-	req.Header.Set("authority", "www.okx.com")
-	req.Header.Set("timeout", "10000")
-	req.Header.Set("x-cdn", "https://www.okx.com")
-	req.Header.Set("devid", "a5ceb850-4efb-4a3f-baff-21da4fce8858")
-	req.Header.Set("accept-language", "zh-CN")
-	req.Header.Set("user-agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36 SE 2.X MetaSr 1.0")
-	req.Header.Set("accept", "application/json")
-	req.Header.Set("x-utc", "8")
-	req.Header.Set("sec-fetch-dest", "empty")
-	req.Header.Set("app-type", "web")
-	req.Header.Set("sec-fetch-site", "same-origin")
-	req.Header.Set("sec-fetch-mode", "cors")
-	req.Header.Set("referer", "https://www.okx.com/zh-hans/markets/data/contracts")
-	req.Header.Set("cookie", "locale=zh_CN; defaultLocale=zh_CN; _gcl_au=1.1.1520807996."+strconv.Itoa(int(timeStamp))+"; _ga=GA1.2.1752370991."+strconv.Itoa(int(timeStamp))+"; _gid=GA1.2.650161560."+strconv.Itoa(int(timeStamp))+"; amp_56bf9d=y9J2I5hN4sKjIiyZROsSAs...1g1isehgq.1g1isehgs.2.0.2; _gat_UA-35324627-3=1")
-	resp, err := client.Do(req)
-	if err != nil {
-		panic(err)
-
-	}
-	defer resp.Body.Close()
-	bodyText, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		panic(err)
-	}
-
-	src := string(bodyText)
-
-	dates := gjson.Get(src, "data.#.0").Array()
-
-	sales := gjson.Get(src, "data.#.1").Array()
-	buys := gjson.Get(src, "data.#.2").Array()
-
-	day := make([]string, len(dates))
-	sale := make([]float64, len(sales))
-	buy := make([]float64, len(buys))
-
-	for i := 0; i < len(dates); i++ {
-
-		a := dates[len(dates)-i-1].Str
-		e, _ := strconv.ParseInt(a, 10, 64)
-		day[i] = time.Unix(0, e*int64(time.Millisecond)).Format("2006-01-02 15:04:05")
-
-		b := sales[len(sales)-i-1].Str
-		f, _ := strconv.ParseFloat(b, 64)
-		sale[i] = f
-
-		d := buys[len(buys)-i-1].Str
-		g, _ := strconv.ParseFloat(d, 64)
-		buy[i] = g
-	}
-	x := len(day)
-	if x > 30 {
-		var sumBuy1, sumSale1 float64
-		var sumBuy2, sumSale2 float64
-		var sumBuy3, sumSale3 float64
-
-		sumBuy1 = buy[x-1] + buy[x-2] + buy[x-3]
-		sumSale1 = sale[x-1] + sale[x-2] + sale[x-3]
-		sumBuy2 = buy[x-4] + buy[x-5] + buy[x-6]
-		sumSale2 = sale[x-4] + sale[x-5] + sale[x-6]
-		sumBuy3 = buy[x-7] + buy[x-8] + buy[x-9]
-		sumSale3 = sale[x-7] + sale[x-8] + sale[x-9]
-
-		buySaleStr1 := fmt.Sprintf("%.5f", sumBuy1/sumSale1)
-		buySale1, _ := strconv.ParseFloat(buySaleStr1, 64)
-
-		buySaleStr2 := fmt.Sprintf("%.5f", sumBuy2/sumSale2)
-		buySale2, _ := strconv.ParseFloat(buySaleStr2, 64)
-
-		buySaleStr3 := fmt.Sprintf("%.5f", sumBuy3/sumSale3)
-		buySale3, _ := strconv.ParseFloat(buySaleStr3, 64)
-
-		// Parse the date string to time.Time
-		layout := "2006-01-02 15:04:05"
-		ts, _ := time.Parse(layout, day[x-1])
-
-		// Get the current time
-		now := time.Now()
-
-		// Calculate the time 15 minutes before and after the current time
-		fifteenMinutesBefore := now.Add(-(15) * time.Minute)
-		fifteenMinutesAfter := now.Add((8 * 60) * time.Minute)
-		//fmt.Println(day[x-1], buySale1, buySale2, buySale3, buySale1/buySale2, buySale2/buySale3)
-		// Check if t is between fifteenMinutesBefore and fifteenMinutesAfter
-		if ts.After(fifteenMinutesBefore) && ts.Before(fifteenMinutesAfter) {
-			if buySale1 < 1 && buySale1 > buySale2 && buySale1 > buySale3 &&
-				buySale1/buySale2 > 1 && buySale2/buySale3 > 1 &&
-				buySale1/buySale2 < 2 && buySale2/buySale3 < 2 {
-				return true, fmt.Sprintf("%.5f", buySale1), fmt.Sprintf("%.5f", buySale2), fmt.Sprintf("%.5f", buySale3), fmt.Sprintf("%.5f", buySale1/buySale2), fmt.Sprintf("%.5f", buySale2/buySale3)
-			} else {
-				return false, fmt.Sprintf("%.5f", buySale1), fmt.Sprintf("%.5f", buySale2), fmt.Sprintf("%.5f", buySale3), fmt.Sprintf("%.5f", buySale1/buySale2), fmt.Sprintf("%.5f", buySale2/buySale3)
-			}
-
+		if macd1 > macd2 && macd1 > 40 && macd1 < 60 && macd1/macd2 > 1.1 && macd1/macd2 < 1.5 && vol1 > vol2 {
+			log := "\ntime--->>" + time.Now().Format("2006-1-2 15:04:02") +
+				",symbol--->>" + symbol +
+				",macd1--->>" + fmt.Sprintf("%.5f", macd1) +
+				",macd2--->>" + fmt.Sprintf("%.5f", macd2) +
+				",macd1/macd2--->>" + fmt.Sprintf("%.5f", macd1/macd2) +
+				",close--->>" + fmt.Sprintf("%.5f", close) +
+				",vol1--->>" + fmt.Sprintf("%.5f", vol1) +
+				",vol2--->>" + fmt.Sprintf("%.5f", vol2) +
+				",diff--->>" + fmt.Sprintf("%.5f", diff[x-1]) +
+				",dea--->>" + fmt.Sprintf("%.5f", dea[x-1]) +
+				",minute--->>" + minute
+			fmt.Println(log)
+			GetWriter(log)
+			return true
+		} else {
+			return false
 		}
-
 	}
-	return false, "0", "0", "0", "0", "0"
+
 }
 
-func GetKline(symbol string, minute string) (int, float64, float64, []float64, []float64) {
+func GetKline(symbol string, minute string) (int, float64, float64, float64, []float64, []float64) {
 
 	//fmt.Println(symboldemo, symbol)
 	time.Sleep(time.Millisecond * 10)
@@ -237,7 +153,7 @@ func GetKline(symbol string, minute string) (int, float64, float64, []float64, [
 	vols := gjson.Get(src, "data.#.6").Array()
 
 	if len(closes) < 500 || closes[10].Float() < 0.0001 {
-		return 0, 0, 0, []float64{}, []float64{}
+		return 0, 0, 0, 0, []float64{}, []float64{}
 	}
 
 	if len(closes) > 500 && closes[10].Float() > 0.0001 {
@@ -278,40 +194,9 @@ func GetKline(symbol string, minute string) (int, float64, float64, []float64, [
 
 		vol1 := v[x-1]
 		vol2 := v[x-2]
-		return x, vol1, vol2, diff, dea
+		return x, c[x-1], vol1, vol2, diff, dea
 	}
-	return 0, 0, 0, []float64{}, []float64{}
-}
-func Getprice(symbol string, minute string) (string, string, string, string, string, string, string, string) {
-
-	x, vol1, vol2, diff, dea := GetKline(symbol, minute)
-	if x < 500 {
-		return "", "", "", "", "", "", "", ""
-	}
-
-	if diff[x-1] < dea[x-1] {
-		return "", "", "", "", "", "", "", ""
-	}
-
-	// Slope斜率dea
-	slope5 := talib.LinearRegSlope(dea, 5)
-	slope60 := talib.LinearRegSlope(dea, 60)
-	cosa5 := slope5[len(slope5)-1]
-	cosa60 := slope60[len(slope60)-1]
-	macd1 := 2 * (diff[x-1] - dea[x-1])
-	macd2 := 2 * (diff[x-2] - dea[x-2])
-
-	if cosa5 < 0 || cosa60 < 0 {
-		return "", "", "", "", "", "", "", ""
-	}
-	//fmt.Println("symbol:--->>>", symbol, "----cosa5/cosa60--->>>", cosa5/cosa60, "----macd1/macd2--->>>", macd1/macd2, "----vol1/vol2--->>>", vol1/vol2, "----minute--->>>", minute)
-	if cosa5/cosa60 > 20 && cosa5/cosa60 < 30 {
-		return fmt.Sprintf("%.5f", macd1), fmt.Sprintf("%.5f", macd2), fmt.Sprintf("%.5f", macd1/macd2), fmt.Sprintf("%.5f", cosa5), fmt.Sprintf("%.5f", cosa60), fmt.Sprintf("%.5f", cosa5/cosa60), fmt.Sprintf("%.5f", vol1), fmt.Sprintf("%.5f", vol2)
-	} else {
-		return "", "", "", "", "", "", "", ""
-
-	}
-
+	return 0, 0, 0, 0, []float64{}, []float64{}
 }
 
 func GetWriter(log string) {
