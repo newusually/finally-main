@@ -109,6 +109,38 @@ class MVC:
 
         return eval(json.dumps(result['data'][0]))['last']
 
+    def sellall(api_key, secret_key, passphrase, flag):
+        # account api
+        accountAPI = Account.AccountAPI(api_key, secret_key, passphrase, False, flag)
+        result = accountAPI.get_position_risk('SWAP')
+        datas = result['data'][0]['posData']
+        # 获取持仓的交易品种['instId']
+
+        if len(datas) > 0:
+            # print(datas)
+            # 使用循环遍历 posData 列表中的每个元素
+            for item in datas:
+                try:
+                    time.sleep(1)
+                    # 打印每个 instId
+                    symbol = item['instId']
+                    # 将 instId 添加到 symbollist 列表中
+
+                    # 查看持仓信息  Get Positions
+                    result = accountAPI.get_positions('SWAP', symbol)
+
+                    # 未实现收益率
+                    uplRatio = float(result['data'][0]['uplRatio'])
+
+                    if uplRatio > 0.15 or uplRatio < -10:
+                        print("symbol--->>>", symbol, "未实现收益率--->>>", uplRatio)
+                        tradeAPI = Trade.TradeAPI(api_key, secret_key, passphrase, False, flag)
+
+                        # 市价仓位全平  Close Positions
+                        result = tradeAPI.close_positions(symbol, 'cross', 'long', '')
+                except:
+                    pass
+
     # 查询是否抄底 然后 读取买入日志更新最新10行数据保存
     def getuplRatio_instId(api_key, secret_key, passphrase, flag):
 
@@ -164,13 +196,6 @@ class MVC:
                             MVC.orderbuy(api_key, secret_key, passphrase, flag, symbol, "imr")
                         else:
                             MVC.orderbuy(api_key, secret_key, passphrase, flag, symbol, "low")
-
-                    if uplRatio > 0.15 or uplRatio < -5:
-                        print("symbol--->>>", symbol, "未实现收益率--->>>", uplRatio)
-                        tradeAPI = Trade.TradeAPI(api_key, secret_key, passphrase, False, flag)
-
-                        # 市价仓位全平  Close Positions
-                        result = tradeAPI.close_positions(symbol, 'cross', 'long', '')
 
                     notionalUsd = float(result['data'][0]['notionalUsd'])
                     # 保证金
@@ -302,24 +327,25 @@ class MVC:
     def orderbuy(api_key, secret_key, passphrase, flag, symbol, minute):
         # account api
         accountAPI = Account.AccountAPI(api_key, secret_key, passphrase, False, flag)
-        result = accountAPI.get_position_risk('SWAP')
+        # result = accountAPI.get_position_risk('SWAP')
 
         # 获取保证金SUSHI-USDT-SWAP的最大保证金张数 大于此保证金张数的70%才可以买入
-        result_example = accountAPI.get_adjust_leverage_info('SWAP', 'cross', 50, 'SUSHI-USDT-SWAP')
-        result_now = accountAPI.get_adjust_leverage_info('SWAP', 'cross', 50, symbol)
+        # result_example = accountAPI.get_adjust_leverage_info('SWAP', 'cross', 50, 'SUSHI-USDT-SWAP')
+        # result_now = accountAPI.get_adjust_leverage_info('SWAP', 'cross', 50, symbol)
         # 最大倍数要求大于等于20
-
-        maxLever_now = result_now['data'][0]['maxLever']
+        # print(result_now)
+        # maxLever_now = result_now['data'][0]['maxLever']
         # 大于此保证金张数的70%才可以买入
-        estMaxAmt_example = result_example['data'][0]['estMaxAmt']
-        estMaxAmt_now = result_now['data'][0]['estMaxAmt']
-        print("maxLever_now--->>>", maxLever_now, "estMaxAmt_example--->>>", estMaxAmt_example, "estMaxAmt_now--->>>",
-              estMaxAmt_now, "estMaxAmt_now/estMaxAmt_example--->>>", float(estMaxAmt_now) / float(estMaxAmt_example),
-              "minute--->>>", minute, "symbol--->>>", symbol)
+        # estMaxAmt_example = result_example['data'][0]['estMaxAmt']
+        # estMaxAmt_now = result_now['data'][0]['estMaxAmt']
+        # print("maxLever_now--->>>", maxLever_now, "estMaxAmt_example--->>>", estMaxAmt_example, "estMaxAmt_now--->>>",
+        #      estMaxAmt_now, "estMaxAmt_now/estMaxAmt_example--->>>", float(estMaxAmt_now) / float(estMaxAmt_example),
+        #      "minute--->>>", minute, "symbol--->>>", symbol)
 
-        if int(maxLever_now) < 20 or float(estMaxAmt_now) / float(estMaxAmt_example) < 0.03:
-            return False
-        else:
+        # if int(maxLever_now) < 20 or float(estMaxAmt_now) / float(
+        #        estMaxAmt_example) < 0.02 or symbol == "USDC-USDT-SWAP" or symbol == "USTC-USDT-SWAP":
+        #    return False
+        if True:
 
             swap = accountAPI.get_position_risk('SWAP')
 
@@ -327,7 +353,7 @@ class MVC:
             posData_length = str(len(posData)) if isinstance(posData, list) else str(posData)
             # print("posData_length--->>>", posData_length, posData)
 
-            if float(posData_length) < 100 or minute == "low" or minute == "imr":
+            if float(posData_length) < 10 or minute == "low" or minute == "imr":
 
                 sr, dollar, dollar_eth = User.get_user_sr()
                 sr1 = str(sr)
@@ -343,7 +369,7 @@ class MVC:
                 result = accountAPI.get_positions('SWAP', symbol)
 
                 # 设置杠杆倍数  Set Leverage
-                accountAPI.set_leverage(instId=symbol, lever='50', mgnMode='cross')
+                accountAPI.set_leverage(instId=symbol, lever='20', mgnMode='cross')
 
                 time.sleep(5)
 
@@ -373,10 +399,10 @@ class MVC:
                     # print("minute--->>>", minute)
                     if "low" == minute:
                         # print("minute--->>>", minute)
-                        onlyorder = int(onlyorder)
+                        onlyorder = int(onlyorder / 5)
                     if "imr" == minute:
                         # print("minute--->>>", minute)
-                        onlyorder = int(onlyorder * 3)
+                        onlyorder = int(onlyorder / 3)
                     # 第2次买入
                     tradeAPI = Trade.TradeAPI(api_key, secret_key, passphrase, False, flag)
                     tradeAPI.place_order(instId=symbol, tdMode='cross', side='buy', posSide='long',
