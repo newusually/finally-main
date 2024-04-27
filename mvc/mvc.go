@@ -74,20 +74,24 @@ func GetIsBuy(symbol string, minute string) bool {
 		return false
 	} else {
 
-		macd1 := 2 * (diff[x-1] - dea[x-1]) * (10000 / close)
-		macd2 := 2 * (diff[x-2] - dea[x-2]) * (10000 / close)
+		macd1 := 2 * (diff[x-1] - dea[x-1])
+		macd2 := 2 * (diff[x-2] - dea[x-2])
+		macd3 := 2 * (diff[x-3] - dea[x-3])
+		macd4 := 2 * (diff[x-4] - dea[x-4])
+		macd5 := 2 * (diff[x-5] - dea[x-5])
+		macd6 := 2 * (diff[x-6] - dea[x-6])
 
-		if macd1 > macd2 && macd1 > 40 && macd1 < 60 && macd1/macd2 > 1.1 && macd1/macd2 < 1.5 && vol1 > vol2 {
+		if macd1 > 0 && macd2 < 0 &&
+			macd1/macd2 > -30 && macd1/macd2 < -5 &&
+			macd3 < 0 && macd4 < 0 && macd5 < 0 && macd6 < 0 &&
+			vol1/vol2 > 3 && vol1/vol2 < 8 {
 			log := "\ntime--->>" + time.Now().Format("2006-1-2 15:04:02") +
 				",symbol--->>" + symbol +
 				",macd1--->>" + fmt.Sprintf("%.5f", macd1) +
 				",macd2--->>" + fmt.Sprintf("%.5f", macd2) +
 				",macd1/macd2--->>" + fmt.Sprintf("%.5f", macd1/macd2) +
 				",close--->>" + fmt.Sprintf("%.5f", close) +
-				",vol1--->>" + fmt.Sprintf("%.5f", vol1) +
-				",vol2--->>" + fmt.Sprintf("%.5f", vol2) +
-				",diff--->>" + fmt.Sprintf("%.5f", diff[x-1]) +
-				",dea--->>" + fmt.Sprintf("%.5f", dea[x-1]) +
+				",vol1/vol2--->>" + fmt.Sprintf("%.5f", vol1/vol2) +
 				",minute--->>" + minute
 			fmt.Println(log)
 			GetWriter(log)
@@ -235,6 +239,12 @@ func Getcashbal() {
 
 func Getcashhistory() {
 	cmd := exec.Command("python", "cashhistory.py")
+	res, _ := cmd.Output()
+	fmt.Println(string(res))
+}
+
+func SellAll() {
+	cmd := exec.Command("python", "sells.py")
 	res, _ := cmd.Output()
 	fmt.Println(string(res))
 }
